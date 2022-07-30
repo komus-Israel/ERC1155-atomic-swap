@@ -36,7 +36,7 @@ contract CTOKEN is ERC1155  {
     }
 
      // constructor of the class for KOVAN
-        constructor() public ERC1155("CTOKEN") {
+    constructor() public ERC1155("CTOKEN") {
             //address _oracle, string memory _jobId, uint256 _fee
         contractOwner = msg.sender;
         //setPublicChainlinkToken();
