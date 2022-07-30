@@ -1,5 +1,5 @@
 // File: openzeppelin-contracts-master/contracts/token/ERC1155/ERC1155.sol
-pragma solidity ^0.6.0;
+pragma solidity >=0.6.0 <0.9.0;
 
 
 // File: openzeppelin-contracts-master/contracts/introspection/IERC165.sol
@@ -29,7 +29,7 @@ interface IERC165 {
 
 // File: openzeppelin-contracts-master/contracts/token/ERC1155/IERC1155.sol
 
-pragma solidity ^0.6.2;
+pragma solidity >=0.6.2 <0.9.0;
 
 
 /**
@@ -132,7 +132,7 @@ interface IERC1155 is IERC165 {
 
 // File: openzeppelin-contracts-master/contracts/token/ERC1155/IERC1155MetadataURI.sol
 
-pragma solidity ^0.6.2;
+pragma solidity >=0.6.2 <0.9.0;
 
 
 /**
@@ -153,7 +153,7 @@ interface IERC1155MetadataURI is IERC1155 {
 
 // File: openzeppelin-contracts-master/contracts/token/ERC1155/IERC1155Receiver.sol
 
-pragma solidity ^0.6.0;
+pragma solidity >=0.6.0 <0.9.0;
 
 
 /**
@@ -210,7 +210,7 @@ interface IERC1155Receiver is IERC165 {
 
 // File: openzeppelin-contracts-master/contracts/GSN/Context.sol
 
-pragma solidity ^0.6.0;
+pragma solidity >=0.6.0 <0.9.0;
 
 /*
  * @dev Provides information about the current execution context, including the
@@ -235,7 +235,7 @@ abstract contract Context {
 
 // File: openzeppelin-contracts-master/contracts/introspection/ERC165.sol
 
-pragma solidity ^0.6.0;
+pragma solidity >=0.6.0 <0.9.0;
 
 
 /**
@@ -289,7 +289,7 @@ contract ERC165 is IERC165 {
 
 // File: openzeppelin-contracts-master/contracts/math/SafeMath.sol
 
-pragma solidity ^0.6.0;
+pragma solidity >=0.6.0 <0.9.0;
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
@@ -449,7 +449,7 @@ library SafeMath {
 
 // File: openzeppelin-contracts-master/contracts/utils/Address.sol
 
-pragma solidity ^0.6.2;
+pragma solidity >=0.6.0 <0.9.0;
 
 /**
  * @dev Collection of functions related to the address type
@@ -652,7 +652,7 @@ contract TokenURI {
 }
 
 // File: openzeppelin-contracts-master/contracts/token/ERC1155/ERC1155.sol
-pragma solidity ^0.6.0;
+pragma solidity >=0.6.0 <0.9.0;
 
 
 /**
