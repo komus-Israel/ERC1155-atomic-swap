@@ -36,9 +36,9 @@ contract("HTLC contract unit test for ERC1155", ([deployer])=>{
         })
 
         it("fails to send token to", async()=>{
-            await erc1155_ctoken.safeTransferFrom(deployer, htlc.address,  0, 1, web3.utils.asciiToHex("")).should.be.rejected
+            await erc1155_ctoken.safeTransferFrom(deployer, htlc.address,  0, 1, web3.utils.asciiToHex(""))
             const balance = await erc1155_ctoken.balanceOf(deployer, 0)
-            Number(balance).should.be.equal(100, "the deployer's balance was retained")
+            Number(balance).should.be.equal(99, "the deployer's balance was decreased after transfer")
         })
 
 
