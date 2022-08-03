@@ -2,7 +2,7 @@ require("chai")
     .use(require("chai-as-promised"))
     .should()
 
-const { hashSecret, REVERTS, stringToHex } = require("./helper")
+const { hashSecret, REVERTS, stringToHex, swapState } = require("./helper")
 
 const HTLC = artifacts.require("./HTLC")
 const ERC1155_CTOKEN = artifacts.require("./CTOKEN")
@@ -137,13 +137,36 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                     const checkOrder = await chtlc.checkOrder(1)
 
                     checkOrder._funded.should.be.equal(false, "the ctoken htlc has not been funded by the ctoken depositor")
+                    checkOrder._ctokenReceiver.should.be.equal(ctokenReceiver, "it checks the ctoken receiver")
+                    checkOrder._ttokenReceiver.should.be.equal(ttokenReceiver, "it checks the ttoken receiver")
+                    checkOrder._atomicSwapState.toString().should.be.equal(swapState.OPEN, "it checks the order state")
+                    Number(checkOrder._ctokenId).should.be.equal(0, "it checks the ctoken id")
+                    Number(checkOrder._ttokenId).should.be.equal(0, "it checks the ctoken id")
+
+                    const _ctokenReceiverExpiration = checkOrder._ctokenReceiverExpiration
+                    const _ttokenReceiverExpiration = checkOrder._ttokenReceiverExpiration
+
+                    Number(_ttokenReceiverExpiration - _ctokenReceiverExpiration).should.be.equal(1800, "the time difference between the two recipients is 30 minutes")
+
                 })
 
                 it("checks the order details for thtlc", async()=>{
                     const checkOrder = await thtlc.checkOrder(1)
 
                     checkOrder._funded.should.be.equal(true, "the ttoken htlc has been funded by the ttoken depositor, a.k.a ctoken receiver")
+                    checkOrder._ctokenReceiver.should.be.equal(ctokenReceiver, "it checks the ctoken receiver")
+                    checkOrder._ttokenReceiver.should.be.equal(ttokenReceiver, "it checks the ttoken receiver")
+                    checkOrder._atomicSwapState.toString().should.be.equal(swapState.OPEN, "it checks the order state")
+                    Number(checkOrder._ctokenId).should.be.equal(0, "it checks the ctoken id")
+                    Number(checkOrder._ttokenId).should.be.equal(0, "it checks the ctoken id")
+                    
+                    const _ctokenReceiverExpiration = checkOrder._ctokenReceiverExpiration
+                    const _ttokenReceiverExpiration = checkOrder._ttokenReceiverExpiration
+
+                    Number(_ttokenReceiverExpiration - _ctokenReceiverExpiration).should.be.equal(1800, "the time difference between the two recipients is 30 minutes")
                 })
+
+                
 
             })
 
