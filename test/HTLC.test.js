@@ -8,7 +8,7 @@ const HTLC = artifacts.require("./HTLC")
 const ERC1155_CTOKEN = artifacts.require("./CTOKEN")
 const ERC1155_TTOKEN = artifacts.require("./TTOKEN")
 
-contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttokenReciever])=>{
+contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttokenReceiver])=>{
 
     let chtlc
     let thtlc
@@ -75,12 +75,17 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
             it("fails to open if the secrethash doesn't match the secret", async()=>{
                 
                 wrongSecret = hashSecret("sdvdvdfb").secretHex
-                await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReciever, wrongSecret, secretHash, {from: ttokenReciever}).should.be.rejectedWith(REVERTS.INVALID_SECRET)
+                await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, wrongSecret, secretHash, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.INVALID_SECRET)
                 
             })
 
             it("fails to open order if the initiator is not a recipient of any of the tokens", async()=>{
-                await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReciever, secretKey, secretHash, {from: deployer}).should.be.rejectedWith(REVERTS.INVALID_INITIATOR)
+                await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: deployer}).should.be.rejectedWith(REVERTS.INVALID_INITIATOR)
+            })
+
+            it("fails to open order if the recipient of both tokens are the same address", async()=>{
+                await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ctokenReceiver, secretKey, secretHash, {from: ctokenReceiver}).should.be.rejectedWith(REVERTS.SAME_RECIPIENT)
+                await chtlc.openOrder(1, 0, 0, 10, 10, ttokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ctokenReceiver}).should.be.rejectedWith(REVERTS.SAME_RECIPIENT)
             })
 
         })

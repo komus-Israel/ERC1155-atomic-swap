@@ -44,7 +44,8 @@ const stringToHex = (string)=>{
 
 const REVERTS = {
     INVALID_SECRET: "invalid secret",
-    INVALID_INITIATOR: "initiator must be a recipient of any of the tokens"
+    INVALID_INITIATOR: "initiator must be a recipient of any of the tokens",
+    SAME_RECIPIENT: "an address can't be the same receiver for the two tokens"
 
 }
 
