@@ -1,6 +1,7 @@
 pragma solidity 0.6.2;
 
 import "../utils/ERC1155Receiver.sol";
+import "../utils/IERCToken.sol";
 
  // SPDX-License-Identifier: MIT
 
@@ -90,9 +91,12 @@ contract HTLC is ERC1155Receiver {
 
     /// @dev 
 
+    IERCToken ERC1155TOKEN;             //  declare token interface
+
     constructor(address erc_1155_token_address) public {
 
         _erc_1155_token_address = erc_1155_token_address;
+        ERC1155TOKEN = IERCToken(_erc_1155_token_address);
     }
 
 
@@ -118,11 +122,41 @@ contract HTLC is ERC1155Receiver {
     
      */
     function openOrder(uint256 _orderId, uint256 _ctokenId, uint256 _ttokenId, uint256 _ctokenAmount, uint256 _ttokenAmount, address _ctokenReceiver, address _ttokenReceiver, bytes32 _secretKey, bytes32 _secretHash) external {
-
+        
         require(_swapState[_orderId] == AtomicSwapState.INVALID, "existing order id");          //  order id must be a non existing id
         require(_secretHash == sha256(abi.encode(_secretKey)), "invalid secret");               //  check the secret validity
         require(_ctokenReceiver != _ttokenReceiver, "an address can't be the same receiver for the two tokens");        //  ttoken receiver must be different to ctoken receiver
         require(msg.sender == _ctokenReceiver || msg.sender == _ttokenReceiver, "initiator must be a recipient of any of the tokens");      //  only a recipient of the token can initiate the order
+
+        uint256 _ctokenReceiverExpiration;
+        uint256 _ttokenReceiverExpiration;
+        
+
+        /**
+            @dev    this if else condition detects the initiator of the contract, and apportions time accordingly
+            since the initiator a.k.a msg.sender withdraws first, he has 30 minutes to withdraw
+            since the other party is the last the withdraw, he has additional 30 minutes to withdraw, with total time of 1 hour
+        */
+
+            
+        if (_ctokenReceiver == msg.sender){
+
+            _ctokenReceiverExpiration = 30 minutes;     //  assign 30 to the initiator
+            _ttokenReceiverExpiration = 1 hours;        //  assign 1hr to the other party
+        
+
+        }
+
+            
+        else{
+
+            _ctokenReceiverExpiration = 1 hours;        //  assign 1 hour to the other party
+            _ttokenReceiverExpiration = 30 minutes;     //  assign 30 minutes to the initiator
+        
+
+        }
+
+            
 
     }
 
