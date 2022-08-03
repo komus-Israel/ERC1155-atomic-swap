@@ -3,6 +3,7 @@ pragma solidity 0.6.2;
 import "../utils/ERC1155Receiver.sol";
 import "../utils/IERCToken.sol";
 
+
  // SPDX-License-Identifier: MIT
 
  ///    @title HTLC for ERC1155 atomic swap
@@ -29,12 +30,13 @@ import "../utils/IERCToken.sol";
 contract HTLC is ERC1155Receiver {
 
     /**
-        @dev the token contract address to be registered with this HTLC contract
+        @dev the token contract addresses to be registered with this HTLC contract
 
-        The atomic swap implementation is unique to this token address only
+
      */ 
 
     address private _erc_1155_token_address;
+    //address private _erc_1155_ttoken_address;
 
     /**  @dev    Enum to be used to track the state of an order
 
@@ -91,12 +93,16 @@ contract HTLC is ERC1155Receiver {
 
     /// @dev 
 
-    IERCToken ERC1155TOKEN;             //  declare token interface
+    IERCToken ERC1155_TOKEN;             //  declare ctoken interface
+    //IERCToken ERC1155_TTOKEN;             //  declare ttoken interface
 
     constructor(address erc_1155_token_address) public {
 
-        _erc_1155_token_address = erc_1155_token_address;
-        ERC1155TOKEN = IERCToken(_erc_1155_token_address);
+        _erc_1155_token_address = erc_1155_token_address;     //  ctoken address initialization
+        //_erc_1155_ttoken_address = erc_1155_ttoken_address;     //  ttoken address initialization
+        
+        ERC1155_TOKEN = IERCToken(_erc_1155_token_address);   //  register ctoken with the interface
+        //ERC1155_TTOKEN = IERCToken(_erc_1155_ttoken_address);   //  register ttoken with the interface
     }
 
 
@@ -127,6 +133,7 @@ contract HTLC is ERC1155Receiver {
         require(_secretHash == sha256(abi.encode(_secretKey)), "invalid secret");               //  check the secret validity
         require(_ctokenReceiver != _ttokenReceiver, "an address can't be the same receiver for the two tokens");        //  ttoken receiver must be different to ctoken receiver
         require(msg.sender == _ctokenReceiver || msg.sender == _ttokenReceiver, "initiator must be a recipient of any of the tokens");      //  only a recipient of the token can initiate the order
+        
 
         uint256 _ctokenReceiverExpiration;
         uint256 _ttokenReceiverExpiration;
@@ -143,20 +150,40 @@ contract HTLC is ERC1155Receiver {
 
             _ctokenReceiverExpiration = 30 minutes;     //  assign 30 to the initiator
             _ttokenReceiverExpiration = 1 hours;        //  assign 1hr to the other party
-        
+            
+            /**
+                @dev    if initiator is receiving ctoken, then he is giving token, hence the need to deposit ttoken 
+            */
+
+            //require(ERC1155_TTOKEN.isApprovedForAll(msg.sender, address(this)), "contract yet to be approved to move ttokens");
+
+            if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("TTOKEN")))) {
+                require(ERC1155_TOKEN.isApprovedForAll(msg.sender, address(this)), "contract yet to be approved to move ttokens");
+            }        
 
         }
 
             
-        else{
+        if (_ttokenReceiver == msg.sender) {
 
             _ctokenReceiverExpiration = 1 hours;        //  assign 1 hour to the other party
             _ttokenReceiverExpiration = 30 minutes;     //  assign 30 minutes to the initiator
-        
+
+            /**
+                @dev    if initiator is receiving ttoken, then he is giving ctoken, hence the need to deposit ttoken 
+            */
+
+            //require(ERC1155_CTOKEN.isApprovedForAll(msg.sender, address(this)), "contract yet to be approved to move ctokens");
+
+            if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("CTOKEN")))) {
+                require(ERC1155_TOKEN.isApprovedForAll(msg.sender, address(this)), "contract yet to be approved to move ctokens");
+            }   
 
         }
 
-            
+        //ERC1155TOKEN.safeTransferFrom(msg.sender, address(this), ids, amounts, data);
+
+          
 
     }
 
@@ -174,6 +201,11 @@ contract HTLC is ERC1155Receiver {
 
     function RefundOrder() external {
 
+    }
+
+    function getName() external view returns (bool) {
+        //return ERC1155_TOKEN.name();
+        return keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("TTOKEN")));
     }
 
     /*function checkOrder() external view return() {

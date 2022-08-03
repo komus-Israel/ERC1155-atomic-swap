@@ -88,10 +88,17 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                 await chtlc.openOrder(1, 0, 0, 10, 10, ttokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ctokenReceiver}).should.be.rejectedWith(REVERTS.SAME_RECIPIENT)
             })
 
+            it("fails to open if the order initiator fails to approve the contract to move the token he is depositing", async()=>{
+                
+                await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ctokenReceiver})
+                await thtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ctokenReceiver}).should.be.rejectedWith(REVERTS.UNAPPROVED_TTOKEN, "unapproved ttoken")
+                const a = await chtlc.getName()
+                console.log(a)
+            })
+
         })
 
     })
 })
-
 
 

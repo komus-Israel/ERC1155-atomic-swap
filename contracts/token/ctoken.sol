@@ -8,8 +8,8 @@ import '../utils/Erc1155_6_6.sol';
 contract CTOKEN is ERC1155  {
    
     
-    string constant public name = "CTOKEN";
-    string constant public symbol = "CTOKEN";
+    string constant private _name = "CTOKEN";
+    string constant private _symbol = "CTOKEN";
     uint8 constant public decimals = 5;
     
     uint256  public responseFromAPI;
@@ -42,6 +42,16 @@ contract CTOKEN is ERC1155  {
         //setPublicChainlinkToken();
       
     }
+
+    function name() public view returns (string memory) {
+        return _name;
+    }
+
+    function symbol() public view returns (string memory) {
+        return _symbol;
+    }
+
+
     /*add signature message as another parameter to restrict only authorized user can execute this method*/
 
     // minting token can only be called by contractOwner 

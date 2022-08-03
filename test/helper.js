@@ -43,9 +43,12 @@ const stringToHex = (string)=>{
 }
 
 const REVERTS = {
+
     INVALID_SECRET: "invalid secret",
     INVALID_INITIATOR: "initiator must be a recipient of any of the tokens",
-    SAME_RECIPIENT: "an address can't be the same receiver for the two tokens"
+    SAME_RECIPIENT: "an address can't be the same receiver for the two tokens",
+    UNAPPROVED_CTOKEN: "contract yet to be approved to move ctokens",
+    UNAPPROVED_TTOKEN: "contract yet to be approved to move ttokens"
 
 }
 
