@@ -212,14 +212,19 @@ contract HTLC is ERC1155Receiver {
 
     }
 
-    function getName() external view returns (bool) {
-        //return ERC1155_TOKEN.name();
-        return keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("TTOKEN")));
+    /**
+        @dev    function to fetch order details by id
+        @param  _orderId is the id of the order to be queried
+
+     */
+    function checkOrder(uint256 _orderId) external view returns(address _ctokenReceiver, address _ttokenReceiver, uint256 _ctokenReceiverExpiration, _ttokenReceiverExpiration, _ctokenAmount, _ttokenAmount, _ctokenId, _ttokenId, _atomicSwapState, _funded) {
+
+            require(_swapState[_orderId] != AtomicSwapState.INVALID, "invalid Id");
+            AtomicSwapOrder memory _order = _swapOrder[_orderId];
+
+            return (_order._ctokenReceiver, _order._ttokenReceiver, _order._ctokenReceiverExpiration, _order._ttokenReceiverExpiration, _order._ctokenAmount, _order._ttokenAmount, _order._ctokenId, _order._ttokenId, _order._atomicSwapState, _order._funded) 
+
     }
-
-    /*function checkOrder() external view return() {
-
-    }*/
 
     
 
