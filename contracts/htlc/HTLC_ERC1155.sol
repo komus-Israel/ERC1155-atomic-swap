@@ -149,8 +149,8 @@ contract HTLC is ERC1155Receiver {
             
         if (_ctokenReceiver == msg.sender){
 
-            _ctokenReceiverExpiration = 30 minutes;     //  assign 30 to the initiator
-            _ttokenReceiverExpiration = 1 hours;        //  assign 1hr to the other party
+            _ctokenReceiverExpiration = now + 30 minutes;     //  assign 30 to the initiator
+            _ttokenReceiverExpiration = now + 1 hours;        //  assign 1hr to the other party
             
             /**
                 @dev    if initiator is receiving ctoken, then he is giving token, hence the need to deposit ttoken 
@@ -168,8 +168,8 @@ contract HTLC is ERC1155Receiver {
             
         if (_ttokenReceiver == msg.sender) {
 
-            _ctokenReceiverExpiration = 1 hours;        //  assign 1 hour to the other party
-            _ttokenReceiverExpiration = 30 minutes;     //  assign 30 minutes to the initiator
+            _ctokenReceiverExpiration = now + 1 hours;        //  assign 1 hour to the other party
+            _ttokenReceiverExpiration = now + 30 minutes;     //  assign 30 minutes to the initiator
 
             /**
                 @dev    if initiator is receiving ttoken, then he is giving ctoken, hence the need to deposit ttoken 
@@ -217,12 +217,12 @@ contract HTLC is ERC1155Receiver {
         @param  _orderId is the id of the order to be queried
 
      */
-    function checkOrder(uint256 _orderId) external view returns(address _ctokenReceiver, address _ttokenReceiver, uint256 _ctokenReceiverExpiration, _ttokenReceiverExpiration, _ctokenAmount, _ttokenAmount, _ctokenId, _ttokenId, _atomicSwapState, _funded) {
+    function checkOrder(uint256 _orderId) external view returns(address _ctokenReceiver, address _ttokenReceiver, uint256 _ctokenReceiverExpiration, uint256 _ttokenReceiverExpiration, uint256 _ctokenAmount, uint256 _ttokenAmount, uint256 _ctokenId, uint256 _ttokenId, AtomicSwapState _atomicSwapState, bool _funded) {
 
             require(_swapState[_orderId] != AtomicSwapState.INVALID, "invalid Id");
             AtomicSwapOrder memory _order = _swapOrder[_orderId];
 
-            return (_order._ctokenReceiver, _order._ttokenReceiver, _order._ctokenReceiverExpiration, _order._ttokenReceiverExpiration, _order._ctokenAmount, _order._ttokenAmount, _order._ctokenId, _order._ttokenId, _order._atomicSwapState, _order._funded) 
+            return (_order._ctokenReceiver, _order._ttokenReceiver, _order._ctokenWithdrawalExpiration, _order._ttokenWithdrawalExpiration, _order._ctokenAmount, _order._ttokenAmount, _order._ctokenId, _order._ttokenId, _order._atomicSwapState, _order._funded); 
 
     }
 

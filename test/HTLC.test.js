@@ -96,17 +96,46 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
 
             })
 
-            it("opens the order successfully when ctoken receiver is the initiator", async()=>{
+            describe("order initiated by ctoken receiver", ()=>{
 
-                //  ctoken receiver approves THTLC to move the tokens 
-                await erc1155_ttoken.setApprovalForAll(thtlc.address, true, {from: ctokenReceiver})
+                let chtlc_open_order
+                let thtlc_open_order
 
-                //  open the order
-                await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ctokenReceiver})
-                await thtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ctokenReceiver})
+                beforeEach(async ()=>{
+                    //  ctoken receiver approves THTLC to move and deposit his ttokens 
+                    await erc1155_ttoken.setApprovalForAll(thtlc.address, true, {from: ctokenReceiver})
+                        
+                    //  he opens the order
+                    chtlc_open_order = await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ctokenReceiver})
+                    thtlc_open_order = await thtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ctokenReceiver})
+                })
 
+                it("emits the opened order event and event data", async()=>{
+                    
+                    //  event data test for Ctoken HTLC
+                    chtlc_open_order.logs[0].event.should.be.equal("OpenedOrder", "it emits the OpenedOrder")
+                    chtlc_open_order.logs[0].args._ctokenReceiver.should.be.equal(ctokenReceiver, "it emits the ctoken receiver's address")
+                    chtlc_open_order.logs[0].args._ttokenReceiver.should.be.equal(ttokenReceiver, "it emits the ttoken receiver's address")
+                    Number(chtlc_open_order.logs[0].args._ctokenAmount).should.be.equal(10, "it emits the amount of ctoken to be transacted")
+                    Number(chtlc_open_order.logs[0].args._ttokenAmount).should.be.equal(10, "it emits the amount of ttoken to be transacted")
+                    Number(chtlc_open_order.logs[0].args._ctokenId).should.be.equal(0, "it emits the id of ctoken to be transacted")
+                    Number(chtlc_open_order.logs[0].args._ttokenId).should.be.equal(0, "it emits the id of ttoken to be transacted")
+
+                    //  event data test for Ttoken HTLC
+                    thtlc_open_order.logs[0].event.should.be.equal("OpenedOrder", "it emits the OpenedOrder")
+                    thtlc_open_order.logs[0].args._ctokenReceiver.should.be.equal(ctokenReceiver, "it emits the ctoken receiver's address")
+                    thtlc_open_order.logs[0].args._ttokenReceiver.should.be.equal(ttokenReceiver, "it emits the ttoken receiver's address")
+                    Number(thtlc_open_order.logs[0].args._ctokenAmount).should.be.equal(10, "it emits the amount of ctoken to be transacted")
+                    Number(thtlc_open_order.logs[0].args._ttokenAmount).should.be.equal(10, "it emits the amount of ttoken to be transacted")
+                    Number(thtlc_open_order.logs[0].args._ctokenId).should.be.equal(0, "it emits the id of ctoken to be transacted")
+                    Number(thtlc_open_order.logs[0].args._ttokenId).should.be.equal(0, "it emits the id of ttoken to be transacted")
+                    
+
+                })
 
             })
+
+            
 
 
         })
