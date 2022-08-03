@@ -183,14 +183,34 @@ contract HTLC is ERC1155Receiver {
 
         }
 
+        address         _ctokenReceiver;    //  the reciever of CToken. This is also giver of TToken
+        address         _ttokenReceiver;    //  the receiver of TToken. This is also the giver of CToken
+        address         _orderInitiator;    //  the order initiator is the creator of the order between the two parties
+        bytes32         _secretHash;        //  the hash of the secret to be stored upon order opening. without this, either parties cannot transact
+        bytes32         _secretKey;         //  the secret key is secret to the initiator's token. Without this, either parties cannot transact. The secret must match the hash
+        uint256         _ctokenAmount;      //  the amount of CToken to be transacted
+        uint256         _ttokenAmount;      //  the amount of TToken to be transacted
+        uint256         _ctokenId;          //  the CToken id to be transacted
+        uint256         _ttokenId;          //  the TToken id to be transacted
+        uint256         _ctokenWithdrawalExpiration;    //  the expiration time for CToken withdrawal
+        uint256         _ttokenWithdrawalExpiration;    //  the expiration time for TToken withdrawal
+        uint256         _atomicSwapId;                  //  the id of the swap order    
+        bool            _funded;                        //  the deposit status for the order
+        AtomicSwapState _atomicSwapState;    
 
-          
+        _swapState[_orderId] = AtomicSwapState.OPEN     //  update the order state to open
+        _swapOrder[_orderId] = AtomicSwapOrder(_ctokenReceiver, _ttokenReceiver, msg.sender, _secretHash, 
+                                                bytes(0), _ctokenAmount, _ttokenAmount, _ctokenId,  _ttokenId, _ctokenReceiverExpiration, 
+                                                _ttokenReceiverExpiration, _orderId, true, _swapState[_orderId])
+
+
+        emit OpenedOrder(_ctokenReceiver, _ttokenReceiver, _ctokenAmount, _ttokenAmount, _ctokenId, _ttokenId);
 
     }
 
     /**
         @dev the non inittiator of the order calls the fundOrder function to fund the order
-     */
+    */
 
     function fundOrder() external {
 
@@ -235,4 +255,10 @@ contract HTLC is ERC1155Receiver {
 
     
 
+
+    /**
+        @dev    Events
+    */
+
+    event OpenedOrder(address indexed _ctokenReceiver, address indexed _ttokenReceiver, uint256 _ctokenAmount, uint256 _ttokenAmount, uint256 _ctokenId, uint256 _ttokenId)
 }

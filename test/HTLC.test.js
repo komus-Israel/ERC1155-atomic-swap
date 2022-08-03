@@ -2,7 +2,7 @@ require("chai")
     .use(require("chai-as-promised"))
     .should()
 
-const { hashSecret, REVERTS } = require("./helper")
+const { hashSecret, REVERTS, stringToHex } = require("./helper")
 
 const HTLC = artifacts.require("./HTLC")
 const ERC1155_CTOKEN = artifacts.require("./CTOKEN")
@@ -20,6 +20,32 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
         erc1155_ttoken = await ERC1155_TTOKEN.new()     //  deploy ttoken
         chtlc = await HTLC.new(erc1155_ctoken.address)  //  deploy htlc for ctoken
         thtlc = await HTLC.new(erc1155_ttoken.address)  //  deploy htlc for ttoken
+
+
+        //  mint ctoken and ttoken
+        await erc1155_ctoken.createToken(deployer, 1000, "", stringToHex("").hex, {from: deployer})
+        await erc1155_ttoken.createToken(deployer, 1000, "", stringToHex("").hex, {from: deployer})
+
+        //  transfer ttoken to htlc ctoken reciever
+        await erc1155_ttoken.safeTransferFrom(deployer, ctokenReceiver, 0, 100, stringToHex("").hex, {from: deployer})
+        
+        //  transfer ctoken to htlc ttoken receiver
+        await erc1155_ctoken.safeTransferFrom(deployer, ttokenReceiver, 0, 100, stringToHex("").hex, {from: deployer})
+    
+    })
+
+
+    describe("balances", ()=>{
+
+        it("updates the balances of the deployer and the token recipients", async()=>{
+            ctokenReceiver_ttokenBalance  = await erc1155_ttoken.balanceOf(ctokenReceiver, 0)
+            ttokenReceiver_ctokenBalance  = await erc1155_ctoken.balanceOf(ttokenReceiver, 0)
+
+            Number(ctokenReceiver_ttokenBalance).should.be.equal(100, "ctoken receiver received some ttokens")
+            Number(ttokenReceiver_ctokenBalance).should.be.equal(100, "ttoken receiver received some ctokens")
+            
+        })
+
     })
 
     describe("contract deployment", ()=>{
@@ -57,6 +83,30 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
     describe("opening order", ()=>{
 
         describe("success", ()=>{
+
+            let secretPhrase = "access"
+            let secretKey
+            let secrethash
+
+            beforeEach(async()=>{
+
+                secretKey =  hashSecret(secretPhrase).secretHex
+                secretHash = hashSecret(secretPhrase).secretHash
+
+
+            })
+
+            it("opens the order successfully when ctoken receiver is the initiator", async()=>{
+
+                //  ctoken receiver approves THTLC to move the tokens 
+                await erc1155_ttoken.setApprovalForAll(thtlc.address, true, {from: ctokenReceiver})
+
+                //  open the order
+                await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ctokenReceiver})
+                await thtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ctokenReceiver})
+
+
+            })
 
 
         })
