@@ -141,7 +141,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                     checkOrder._ttokenReceiver.should.be.equal(ttokenReceiver, "it checks the ttoken receiver")
                     checkOrder._atomicSwapState.toString().should.be.equal(swapState.OPEN, "it checks the order state")
                     Number(checkOrder._ctokenId).should.be.equal(0, "it checks the ctoken id")
-                    Number(checkOrder._ttokenId).should.be.equal(0, "it checks the ctoken id")
+                    Number(checkOrder._ttokenId).should.be.equal(0, "it checks the ttoken id")
 
                     const _ctokenReceiverExpiration = checkOrder._ctokenReceiverExpiration
                     const _ttokenReceiverExpiration = checkOrder._ttokenReceiverExpiration
@@ -158,7 +158,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                     checkOrder._ttokenReceiver.should.be.equal(ttokenReceiver, "it checks the ttoken receiver")
                     checkOrder._atomicSwapState.toString().should.be.equal(swapState.OPEN, "it checks the order state")
                     Number(checkOrder._ctokenId).should.be.equal(0, "it checks the ctoken id")
-                    Number(checkOrder._ttokenId).should.be.equal(0, "it checks the ctoken id")
+                    Number(checkOrder._ttokenId).should.be.equal(0, "it checks the ttoken id")
                     
                     const _ctokenReceiverExpiration = checkOrder._ctokenReceiverExpiration
                     const _ttokenReceiverExpiration = checkOrder._ttokenReceiverExpiration
@@ -167,6 +167,79 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                 })
 
                 
+
+            })
+
+            describe("order initiated by ttoken receiver", ()=>{
+
+                let chtlc_open_order
+                let thtlc_open_order
+
+                beforeEach(async ()=>{
+                    //  ctoken receiver approves THTLC to move and deposit his ttokens 
+                    await erc1155_ctoken.setApprovalForAll(chtlc.address, true, {from: ttokenReceiver})
+                        
+                    //  he opens the order
+                    chtlc_open_order = await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ttokenReceiver})
+                    thtlc_open_order = await thtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ttokenReceiver})
+                })
+
+                it("emits the opened order event and event data", async()=>{
+                    
+                    //  event data test for Ctoken HTLC
+                    chtlc_open_order.logs[0].event.should.be.equal("OpenedOrder", "it emits the OpenedOrder")
+                    chtlc_open_order.logs[0].args._ctokenReceiver.should.be.equal(ctokenReceiver, "it emits the ctoken receiver's address")
+                    chtlc_open_order.logs[0].args._ttokenReceiver.should.be.equal(ttokenReceiver, "it emits the ttoken receiver's address")
+                    Number(chtlc_open_order.logs[0].args._ctokenAmount).should.be.equal(10, "it emits the amount of ctoken to be transacted")
+                    Number(chtlc_open_order.logs[0].args._ttokenAmount).should.be.equal(10, "it emits the amount of ttoken to be transacted")
+                    Number(chtlc_open_order.logs[0].args._ctokenId).should.be.equal(0, "it emits the id of ctoken to be transacted")
+                    Number(chtlc_open_order.logs[0].args._ttokenId).should.be.equal(0, "it emits the id of ttoken to be transacted")
+
+                    //  event data test for Ttoken HTLC
+                    thtlc_open_order.logs[0].event.should.be.equal("OpenedOrder", "it emits the OpenedOrder")
+                    thtlc_open_order.logs[0].args._ctokenReceiver.should.be.equal(ctokenReceiver, "it emits the ctoken receiver's address")
+                    thtlc_open_order.logs[0].args._ttokenReceiver.should.be.equal(ttokenReceiver, "it emits the ttoken receiver's address")
+                    Number(thtlc_open_order.logs[0].args._ctokenAmount).should.be.equal(10, "it emits the amount of ctoken to be transacted")
+                    Number(thtlc_open_order.logs[0].args._ttokenAmount).should.be.equal(10, "it emits the amount of ttoken to be transacted")
+                    Number(thtlc_open_order.logs[0].args._ctokenId).should.be.equal(0, "it emits the id of ctoken to be transacted")
+                    Number(thtlc_open_order.logs[0].args._ttokenId).should.be.equal(0, "it emits the id of ttoken to be transacted")
+                    
+
+                })
+
+                it("checks the order details for chtlc", async()=>{
+                    const checkOrder = await chtlc.checkOrder(1)
+
+                    checkOrder._funded.should.be.equal(true, "the ctoken htlc has not been funded by the ctoken depositor")
+                    checkOrder._ctokenReceiver.should.be.equal(ctokenReceiver, "it checks the ctoken receiver")
+                    checkOrder._ttokenReceiver.should.be.equal(ttokenReceiver, "it checks the ttoken receiver")
+                    checkOrder._atomicSwapState.toString().should.be.equal(swapState.OPEN, "it checks the order state")
+                    Number(checkOrder._ctokenId).should.be.equal(0, "it checks the ctoken id")
+                    Number(checkOrder._ttokenId).should.be.equal(0, "it checks the ttoken id")
+
+                    const _ctokenReceiverExpiration = checkOrder._ctokenReceiverExpiration
+                    const _ttokenReceiverExpiration = checkOrder._ttokenReceiverExpiration
+
+                    Number(_ctokenReceiverExpiration - _ttokenReceiverExpiration).should.be.equal(1800, "the time difference between the two recipients is 30 minutes")
+
+                })
+
+                it("checks the order details for thtlc", async()=>{
+                    const checkOrder = await thtlc.checkOrder(1)
+
+                    checkOrder._funded.should.be.equal(false, "the ttoken htlc has been funded by the ttoken depositor, a.k.a ctoken receiver")
+                    checkOrder._ctokenReceiver.should.be.equal(ctokenReceiver, "it checks the ctoken receiver")
+                    checkOrder._ttokenReceiver.should.be.equal(ttokenReceiver, "it checks the ttoken receiver")
+                    checkOrder._atomicSwapState.toString().should.be.equal(swapState.OPEN, "it checks the order state")
+                    Number(checkOrder._ctokenId).should.be.equal(0, "it checks the ctoken id")
+                    Number(checkOrder._ttokenId).should.be.equal(0, "it checks the ttoken id")
+                    
+                    const _ctokenReceiverExpiration = checkOrder._ctokenReceiverExpiration
+                    const _ttokenReceiverExpiration = checkOrder._ttokenReceiverExpiration
+
+                    Number(_ctokenReceiverExpiration - _ttokenReceiverExpiration).should.be.equal(1800, "the time difference between the two recipients is 30 minutes")
+                })
+
 
             })
 
