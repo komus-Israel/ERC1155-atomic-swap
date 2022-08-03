@@ -140,6 +140,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                     checkOrder._ctokenReceiver.should.be.equal(ctokenReceiver, "it checks the ctoken receiver")
                     checkOrder._ttokenReceiver.should.be.equal(ttokenReceiver, "it checks the ttoken receiver")
                     checkOrder._atomicSwapState.toString().should.be.equal(swapState.OPEN, "it checks the order state")
+                    checkOrder._secretKey.should.be.equal(BYTES_0, "the secret isn't revealed publicly")
                     Number(checkOrder._ctokenId).should.be.equal(0, "it checks the ctoken id")
                     Number(checkOrder._ttokenId).should.be.equal(0, "it checks the ttoken id")
 
@@ -159,6 +160,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                     checkOrder._ctokenReceiver.should.be.equal(ctokenReceiver, "it checks the ctoken receiver")
                     checkOrder._ttokenReceiver.should.be.equal(ttokenReceiver, "it checks the ttoken receiver")
                     checkOrder._atomicSwapState.toString().should.be.equal(swapState.OPEN, "it checks the order state")
+                    checkOrder._secretKey.should.be.equal(BYTES_0, "the secret isn't revealed publicly")
                     Number(checkOrder._ctokenId).should.be.equal(0, "it checks the ctoken id")
                     Number(checkOrder._ttokenId).should.be.equal(0, "it checks the ttoken id")
                     
@@ -216,6 +218,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                     checkOrder._ctokenReceiver.should.be.equal(ctokenReceiver, "it checks the ctoken receiver")
                     checkOrder._ttokenReceiver.should.be.equal(ttokenReceiver, "it checks the ttoken receiver")
                     checkOrder._atomicSwapState.toString().should.be.equal(swapState.OPEN, "it checks the order state")
+                    checkOrder._secretKey.should.be.equal(BYTES_0, "the secret isn't revealed publicly")
                     Number(checkOrder._ctokenId).should.be.equal(0, "it checks the ctoken id")
                     Number(checkOrder._ttokenId).should.be.equal(0, "it checks the ttoken id")
 
@@ -233,6 +236,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                     checkOrder._ctokenReceiver.should.be.equal(ctokenReceiver, "it checks the ctoken receiver")
                     checkOrder._ttokenReceiver.should.be.equal(ttokenReceiver, "it checks the ttoken receiver")
                     checkOrder._atomicSwapState.toString().should.be.equal(swapState.OPEN, "it checks the order state")
+                    checkOrder._secretKey.should.be.equal(BYTES_0, "the secret isn't revealed publicly")
                     Number(checkOrder._ctokenId).should.be.equal(0, "it checks the ctoken id")
                     Number(checkOrder._ttokenId).should.be.equal(0, "it checks the ttoken id")
                     
