@@ -155,10 +155,11 @@ contract HTLC is ERC1155Receiver {
                 @dev    if initiator is receiving ctoken, then he is giving token, hence the need to deposit ttoken 
             */
 
-            //require(ERC1155_TTOKEN.isApprovedForAll(msg.sender, address(this)), "contract yet to be approved to move ttokens");
 
             if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("TTOKEN")))) {
                 require(ERC1155_TOKEN.isApprovedForAll(msg.sender, address(this)), "contract yet to be approved to move ttokens");
+                ERC1155_TOKEN.safeTransferFrom(msg.sender, address(this), _ttokenId, _ttokenAmount, "");
+
             }        
 
         }
@@ -173,15 +174,15 @@ contract HTLC is ERC1155Receiver {
                 @dev    if initiator is receiving ttoken, then he is giving ctoken, hence the need to deposit ttoken 
             */
 
-            //require(ERC1155_CTOKEN.isApprovedForAll(msg.sender, address(this)), "contract yet to be approved to move ctokens");
 
             if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("CTOKEN")))) {
                 require(ERC1155_TOKEN.isApprovedForAll(msg.sender, address(this)), "contract yet to be approved to move ctokens");
+                ERC1155_TOKEN.safeTransferFrom(msg.sender, address(this), _ctokenId, _ctokenAmount, "");
+
             }   
 
         }
 
-        //ERC1155TOKEN.safeTransferFrom(msg.sender, address(this), ids, amounts, data);
 
           
 
