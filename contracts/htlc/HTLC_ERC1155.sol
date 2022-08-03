@@ -86,13 +86,13 @@ contract HTLC is ERC1155Receiver {
     }
 
     mapping(uint256 => AtomicSwapOrder) private _swapOrder;
-    mapping(bytes32 => AtomicSwapState) private _swapState;          //  default is invalid for all order id
+    mapping(uint256 => AtomicSwapState) private _swapState;          //  default is invalid for all order id
 
     /// @dev 
 
     constructor(address erc_1155_token_address) public {
 
-        _erc_1155_token_address = erc_1155_token;
+        _erc_1155_token_address = erc_1155_token_address;
     }
 
 
@@ -117,9 +117,12 @@ contract HTLC is ERC1155Receiver {
 
     
      */
-    function openOrder() external {
+    function openOrder(uint256 _orderId, uint256 _ctokenId, uint256 _ttokenId, uint256 _ctokenAmount, uint256 _ttokenAmount, address _ctokenReceiver, address _ttokenReceiver, bytes32 _secretKey, bytes32 _secretHash) external {
 
-            
+        require(_swapState[_orderId] == AtomicSwapState.INVALID, "existing order id");          //  order id must be a non existing id
+        require(_secretHash == sha256(abi.encode(_secretKey)), "invalid secret");               //  check the secret validity
+        require(_ctokenReceiver != _ttokenReceiver, "an address can't be the same receiver for the two tokens");        //  ttoken receiver must be different to ctoken receiver
+        require(msg.sender == _ctokenReceiver || msg.sender == _ttokenReceiver, "initiator must be a recipient of any of the tokens");      //  only a recipient of the token can initiate the order
 
     }
 
@@ -131,7 +134,6 @@ contract HTLC is ERC1155Receiver {
 
     }
 
-
     function withdrawOrder() external {
         
     }
@@ -140,9 +142,11 @@ contract HTLC is ERC1155Receiver {
 
     }
 
-    function checkOrder() external view return() {
+    /*function checkOrder() external view return() {
 
-    }
+    }*/
+
+    
 
 
     /// @notice this function's implementation to receive deposit
