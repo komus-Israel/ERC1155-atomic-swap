@@ -192,6 +192,7 @@ contract HTLC is ERC1155Receiver {
                                                 _ttokenReceiverExpiration, _orderId, _fundedStatus, _swapState[_orderId]);
 
 
+        //  emit the opened order
         emit OpenedOrder(_ctokenReceiver, _ttokenReceiver, _ctokenAmount, _ttokenAmount, _ctokenId, _ttokenId);
 
     }
@@ -217,12 +218,12 @@ contract HTLC is ERC1155Receiver {
         @param  _orderId is the id of the order to be queried
 
      */
-    function checkOrder(uint256 _orderId) external view returns(address _ctokenReceiver, address _ttokenReceiver, uint256 _ctokenReceiverExpiration, uint256 _ttokenReceiverExpiration, uint256 _ctokenAmount, uint256 _ttokenAmount, uint256 _ctokenId, uint256 _ttokenId, AtomicSwapState _atomicSwapState, bool _funded) {
+    function checkOrder(uint256 _orderId) external view returns(address _ctokenReceiver, address _ttokenReceiver, uint256 _ctokenReceiverExpiration, uint256 _ttokenReceiverExpiration, uint256 _ctokenAmount, uint256 _ttokenAmount, uint256 _ctokenId, uint256 _ttokenId, AtomicSwapState _atomicSwapState, bool _funded, bytes32 _secretKey) {
 
             require(_swapState[_orderId] != AtomicSwapState.INVALID, "invalid Id");
             AtomicSwapOrder memory _order = _swapOrder[_orderId];
 
-            return (_order._ctokenReceiver, _order._ttokenReceiver, _order._ctokenWithdrawalExpiration, _order._ttokenWithdrawalExpiration, _order._ctokenAmount, _order._ttokenAmount, _order._ctokenId, _order._ttokenId, _order._atomicSwapState, _order._funded); 
+            return (_order._ctokenReceiver, _order._ttokenReceiver, _order._ctokenWithdrawalExpiration, _order._ttokenWithdrawalExpiration, _order._ctokenAmount, _order._ttokenAmount, _order._ctokenId, _order._ttokenId, _order._atomicSwapState, _order._funded, _order._secretKey); 
 
     }
 

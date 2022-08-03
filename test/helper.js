@@ -1,5 +1,7 @@
 const moment = require("moment");
 const { ethers } = require("ethers")
+const BYTES_0 = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
 
 
 //  function to create delay in seconds
@@ -53,5 +55,5 @@ const REVERTS = {
 }
 
 module.exports = {
-    hashSecret, stringToHex, swapState, REVERTS
+    hashSecret, stringToHex, swapState, REVERTS, BYTES_0
 }

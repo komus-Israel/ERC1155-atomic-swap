@@ -2,7 +2,7 @@ require("chai")
     .use(require("chai-as-promised"))
     .should()
 
-const { hashSecret, REVERTS, stringToHex, swapState } = require("./helper")
+const { hashSecret, REVERTS, stringToHex, swapState, BYTES_0 } = require("./helper")
 
 const HTLC = artifacts.require("./HTLC")
 const ERC1155_CTOKEN = artifacts.require("./CTOKEN")
@@ -147,6 +147,8 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                     const _ttokenReceiverExpiration = checkOrder._ttokenReceiverExpiration
 
                     Number(_ttokenReceiverExpiration - _ctokenReceiverExpiration).should.be.equal(1800, "the time difference between the two recipients is 30 minutes")
+
+                    checkOrder._
 
                 })
 
