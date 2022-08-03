@@ -133,6 +133,18 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
 
                 })
 
+                it("checks the order details for chtlc", async()=>{
+                    const checkOrder = await chtlc.checkOrder(1)
+
+                    checkOrder._funded.should.be.equal(false, "the ctoken htlc has not been funded by the ctoken depositor")
+                })
+
+                it("checks the order details for thtlc", async()=>{
+                    const checkOrder = await thtlc.checkOrder(1)
+
+                    checkOrder._funded.should.be.equal(true, "the ttoken htlc has been funded by the ttoken depositor, a.k.a ctoken receiver")
+                })
+
             })
 
             
