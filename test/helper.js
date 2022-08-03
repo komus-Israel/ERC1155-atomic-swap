@@ -1,4 +1,5 @@
 const moment = require("moment");
+const { ethers } = require("ethers")
 
 
 //  function to create delay in seconds
@@ -39,4 +40,14 @@ const stringToHex = (string)=>{
     const hex = web3.utils.asciiToHex(string)
     return { string, hex }
 
+}
+
+const REVERTS = {
+    INVALID_SECRET: "invalid secret",
+    INVALID_INITIATOR: "initiator must be a recipient of any of the tokens"
+
+}
+
+module.exports = {
+    hashSecret, stringToHex, swapState, REVERTS
 }

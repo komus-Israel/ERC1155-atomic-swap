@@ -2,11 +2,13 @@ require("chai")
     .use(require("chai-as-promised"))
     .should()
 
+const { hashSecret, REVERTS } = require("./helper")
+
 const HTLC = artifacts.require("./HTLC")
 const ERC1155_CTOKEN = artifacts.require("./CTOKEN")
 const ERC1155_TTOKEN = artifacts.require("./TTOKEN")
 
-contract("HTLC contract unit test for ERC1155", ([deployer])=>{
+contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttokenReciever])=>{
 
     let chtlc
     let thtlc
@@ -61,8 +63,25 @@ contract("HTLC contract unit test for ERC1155", ([deployer])=>{
 
         describe("failure", ()=>{
 
+            let secretPhrase = "access"
+            let secretKey
+            let secrethash
 
-            it("fails to open if the ")
+            beforeEach(async()=>{
+                secretKey =  hashSecret(secretPhrase).secretHex
+                secretHash = hashSecret(secretPhrase).secretHash 
+            })
+
+            it("fails to open if the secrethash doesn't match the secret", async()=>{
+                
+                wrongSecret = hashSecret("sdvdvdfb").secretHex
+                await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReciever, wrongSecret, secretHash, {from: ttokenReciever}).should.be.rejectedWith(REVERTS.INVALID_SECRET)
+                
+            })
+
+            it("fails to open order if the initiator is not a recipient of any of the tokens", async()=>{
+                await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReciever, secretKey, secretHash, {from: deployer}).should.be.rejectedWith(REVERTS.INVALID_INITIATOR)
+            })
 
         })
 
