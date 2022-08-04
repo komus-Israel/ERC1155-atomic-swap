@@ -416,8 +416,16 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
             })
         })
 
+        describe("initiated order by ttoken receiver", ()=>{
+            
+        })
+
        
 
+    })
+
+    describe("order withdrawal", ()=>{
+        
     })
 })
 

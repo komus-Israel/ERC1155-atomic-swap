@@ -248,8 +248,21 @@ contract HTLC is ERC1155Receiver {
 
     }
 
-    function withdrawOrder() external {
+    /**
+        @dev    withdrawal function for individual parties to place withdawal
+                order must be OPEN
+                secret must match
+                order must be funded
+                withdrawee must be the correct recipient
+                order has not expired
+                close the order
+     */
+
+    function withdrawOrder(uint256 _orderId, bytes32 _secret) external {
         
+        require(_swapState[_orderId] == AtomicSwapState.OPEN, "order not opened");
+        AtomicSwapOrder memory _order = _swapOrder[_orderId];
+
     }
 
     function RefundOrder() external {
