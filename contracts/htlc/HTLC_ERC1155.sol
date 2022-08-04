@@ -193,15 +193,57 @@ contract HTLC is ERC1155Receiver {
 
 
         //  emit the opened order
-        emit OpenedOrder(_ctokenReceiver, _ttokenReceiver, _ctokenAmount, _ttokenAmount, _ctokenId, _ttokenId);
+        emit OpenedOrder(_ctokenReceiver, _ttokenReceiver, _orderId, _ctokenAmount, _ttokenAmount, _ctokenId, _ttokenId);
 
     }
 
     /**
-        @dev the non inittiator of the order calls the fundOrder function to fund the order
+        @dev the non initiator of the order calls the fundOrder function to fund the order
+
+        //  order must be opened
+        //  order must not be expired
     */
 
-    function fundOrder() external {
+    function depositOrder(uint256 _orderId) external {
+
+        require(_swapState[_orderId] == AtomicSwapState.OPEN, "order not opened");          //  order id must be a non existing id
+        _order = _swapOrder[_orderId];
+        require(msg.sender != _order._orderInitiator, "invalid depositor");
+        
+
+        if(msg.sender == ctokenReceiver) {
+
+            //  require that the withdrawal time for ttoken is yet to expire so that 
+            //  the depositor can proceed with funding the ttoken
+            require (now < _order._ttokenWithdrawalExpiration, "expired order");
+            require(_order._funded == false, "funded order");
+            if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("TTOKEN")))) {
+                require(ERC1155_TOKEN.isApprovedForAll(msg.sender, address(this)), "contract yet to be approved to move ttokens");
+                ERC1155_TOKEN.safeTransferFrom(msg.sender, address(this), _ttokenId, _ttokenAmount, "");
+                _order._funded = true;
+            }
+
+            emit DepositedOrder(msg.sender, address(this), _orderId, _order._ttokenId, _ttokenAmount);   
+
+        }
+
+        if(msg.sender == ttokenReceiver) {
+
+            //  require that the withdrawal time for ctoken is yet to expire so that 
+            //  the depositor can proceed with funding the ctoken
+            require (now < _order._ctokenWithdrawalExpiration, "expired order");
+            require(_order._funded == false, "funded order");
+            if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("CTOKEN")))) {
+                require(ERC1155_TOKEN.isApprovedForAll(msg.sender, address(this)), "contract yet to be approved to move ctokens");
+                ERC1155_TOKEN.safeTransferFrom(msg.sender, address(this), _ctokenId, _ctokenAmount, "");
+                _order._funded = true;
+            }
+
+            emit DepositedOrder(msg.sender, address(this), _orderId, _order._ctokenId, _ctokenAmount);   
+        }
+
+        
+
 
     }
 
@@ -254,5 +296,6 @@ contract HTLC is ERC1155Receiver {
         @dev    Events
     */
 
-    event OpenedOrder(address indexed _ctokenReceiver, address indexed _ttokenReceiver, uint256 _ctokenAmount, uint256 _ttokenAmount, uint256 _ctokenId, uint256 _ttokenId);
+    event OpenedOrder (address indexed _ctokenReceiver, address indexed _ttokenReceiver, uint256 _orderId, uint256 _ctokenAmount, uint256 _ttokenAmount, uint256 _ctokenId, uint256 _ttokenId);
+    event DepositedOrder (address indexed _depositor, address indexed _receivingContract, uint256 _orderId, uint256 _tokenId, uint256 _tokenAmount)
 }
