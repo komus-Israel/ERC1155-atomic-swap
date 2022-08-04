@@ -386,7 +386,21 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                         })
 
                         it("fails to fund a funded order", async()=>{
+                            await chtlc.depositOrder(1, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.FUNDED_ORDER)
                             
+                        })
+
+                        it("fails to fund an unopened order", async()=>{
+                            await chtlc.depositOrder(3, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.NOT_OPENED)
+                        })
+
+                        it("fails to accept deposit from an invalid depositor", async()=>{
+                            await thtlc.depositOrder(2, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.INVALID_DEPOSITOR)
+                        })
+
+                        it("fails to accept deposit from if contract has not been approved", async()=>{
+                            await erc1155_ttoken.setApprovalForAll(thtlc.address, false, {from: ctokenReceiver})
+                            await thtlc.depositOrder(2, {from: ctokenReceiver}).should.be.rejectedWith(REVERTS.UNAPPROVED_TTOKEN)
                         })
 
 
