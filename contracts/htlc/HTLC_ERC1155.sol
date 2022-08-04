@@ -221,7 +221,7 @@ contract HTLC is ERC1155Receiver {
             if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("TTOKEN")))) {
                 require(ERC1155_TOKEN.isApprovedForAll(msg.sender, address(this)), "contract yet to be approved to move ttokens");
                 ERC1155_TOKEN.safeTransferFrom(msg.sender, address(this), _order._ttokenId, _order._ttokenAmount, "");
-                _order._funded = true;
+                _swapOrder[_orderId]._funded = true;
             }
 
             emit DepositedOrder(msg.sender, address(this), _orderId, _order._ttokenId, _order._ttokenAmount);   
@@ -237,7 +237,7 @@ contract HTLC is ERC1155Receiver {
             if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("CTOKEN")))) {
                 require(ERC1155_TOKEN.isApprovedForAll(msg.sender, address(this)), "contract yet to be approved to move ctokens");
                 ERC1155_TOKEN.safeTransferFrom(msg.sender, address(this), _order._ctokenId, _order._ctokenAmount, "");
-                _order._funded = true;
+                _swapOrder[_orderId]._funded = true;
             }
 
             emit DepositedOrder(msg.sender, address(this), _orderId, _order._ctokenId, _order._ctokenAmount);   
