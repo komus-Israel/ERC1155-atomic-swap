@@ -417,7 +417,72 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
         })
 
         describe("initiated order by ttoken receiver", ()=>{
-            
+
+            let chtlc_open_order
+            let thtlc_open_order
+
+            beforeEach(async ()=>{
+                //  ttoken receiver approves CHTLC to move and deposit his ctokens 
+                await erc1155_ctoken.setApprovalForAll(chtlc.address, true, {from: ttokenReceiver})
+                    
+                //  he opens the order
+                chtlc_open_order = await chtlc.openOrder(1, 0, 0, 10, 20, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ttokenReceiver})
+                thtlc_open_order = await thtlc.openOrder(1, 0, 0, 10, 20, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ttokenReceiver})
+            })
+
+            describe("order status", ()=>{
+
+                let checkCHTLCOrder 
+                let checkTHTLCOrder 
+
+                beforeEach(async()=>{
+                    checkCHTLCOrder = await chtlc.checkOrder(1)
+                    checkTHTLCOrder = await thtlc.checkOrder(1)
+                })
+
+                describe("fund status", ()=>{
+
+                    it("checks the fund status of the two htlc contracts", async()=>{
+                        checkCHTLCOrder._funded.should.be.equal(true, "ctoken has been deposited by the ttoken receiver")
+                        checkTHTLCOrder._funded.should.be.equal(false, "ttoken  has not been deposited by the ctoken receiver")
+                        
+                    })
+
+                })
+
+                describe("funding", ()=>{
+
+                    let thtlc_funding
+
+                    beforeEach(async()=>{
+                        
+                        await erc1155_ttoken.setApprovalForAll(thtlc.address, true, {from: ctokenReceiver})
+                        thtlc_funding = await thtlc.depositOrder(1, {from: ctokenReceiver})
+                    })
+
+                    describe("order cheking after token deposit", ()=>{
+
+                        it("updates the funding status after depositing", async()=>{
+                            
+                            checkTHTLCOrder = await thtlc.checkOrder(1)
+
+                            checkTHTLCOrder._funded.should.be.equal(true, "ctoken deposited")
+                        })
+
+                        it("emits event and event data", async()=>{
+                            thtlc_funding.logs[0].event.should.be.equal("DepositedOrder", "it emits the event after token deposit")
+                            thtlc_funding.logs[0].args._depositor.should.be.equal(ctokenReceiver, "it emits the depositor of the order")
+                            thtlc_funding.logs[0].args._receivingContract.should.be.equal(thtlc.address, "it emits the recipient contract of the deposit")
+                            Number(thtlc_funding.logs[0].args._orderId).should.be.equal(1, "it emits the order ID")
+                            Number(thtlc_funding.logs[0].args._tokenId).should.be.equal(0, "it emits the token id")
+                            Number(thtlc_funding.logs[0].args._tokenAmount).should.be.equal(20, "it emits the amount deposited")
+                        })
+
+                    })
+
+                })
+            })
+
         })
 
        
