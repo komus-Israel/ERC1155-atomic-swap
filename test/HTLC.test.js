@@ -374,6 +374,20 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
 
                     describe("failure", ()=>{
 
+                        beforeEach(async()=>{
+
+                            //  approves htlc to move the token
+                            await erc1155_ctoken.setApprovalForAll(chtlc.address, true, {from: ttokenReceiver})
+
+
+                            //  he opens the order
+                            chtlc_open_order = await chtlc.openOrder(2, 0, 0, 10, 20, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ttokenReceiver})
+                            thtlc_open_order = await thtlc.openOrder(2, 0, 0, 10, 20, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ttokenReceiver})
+                        })
+
+                        it("fails to fund a funded order", async()=>{
+                            
+                        })
 
 
                     })

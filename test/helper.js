@@ -51,7 +51,12 @@ const REVERTS = {
     SAME_RECIPIENT: "an address can't be the same receiver for the two tokens",
     UNAPPROVED_CTOKEN: "contract yet to be approved to move ctokens",
     UNAPPROVED_TTOKEN: "contract yet to be approved to move ttokens",
-    EXISTING_ORDER: "existing order id"
+    EXISTING_ORDER: "existing order id",
+    NOT_OPENED: "order not opened",
+    INVALID_DEPOSITOR: "invalid depositor",
+    EXPIRED_ORDER: "expired order",
+    FUNDED_ORDER: "funded order",
+    
 
 }
 
