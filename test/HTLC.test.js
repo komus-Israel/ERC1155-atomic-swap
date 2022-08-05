@@ -543,7 +543,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
              * cctoken Receiver takes secret and uses it to withdraw ctokens
              */
 
-            describe("first withdrawal by ttoken receiver", ()=>{
+            describe("first withdrawal by the order initiator and secret holder", ()=>{
 
                 let ttoken_withdrawal
                 let checkTHTLCOrderBeforeWithdrawal
@@ -564,15 +564,6 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
 
                 })
 
-                /*it("emits the ClosedOrder event and event data", async()=>{
-                    
-                    ctoken_withdrawal.logs[0].event.should.be.equal("ClosedOrder", "it emits the closed order event")
-                    ctoken_withdrawal.logs[0].args._withdrawee.should.be.equal(ctokenReceiver, "it emits the withdrawee/ctoken receiver's address")
-                    Number(ctoken_withdrawal.logs[0].args._amount).should.be.equal(10, "it emits the amount of tokens withdrawn")
-                    Number(ctoken_withdrawal.logs[0].args._tokenId).should.be.equal(0, "it emits the id of  the token withdrawn")
-
-                })*/
-
                 it("reveals the secret after successful withdrawal", async()=>{
                     const checkTHTLCOrderAfterWithdrawal = await thtlc.checkOrder(1)
 
@@ -580,6 +571,38 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                     hexToUtf8(checkTHTLCOrderAfterWithdrawal._secretKey).should.be.equal(secretPhrase, "secret revealed after withdrawal by order initiator")
 
                 })
+
+            })
+
+            describe("withdrawal by the secret recipient", ()=>{
+
+                let ctoken_withdrawal
+                let checkCHTLCOrderBeforeWithdrawal
+
+                beforeEach(async()=>{
+
+                    checkCHTLCOrderBeforeWithdrawal = await chtlc.checkOrder(1)
+                    ctoken_withdrawal = await chtlc.withdrawOrder(1, secretKey, {from: ctokenReceiver})
+                })
+
+                 it("emits the ClosedOrder event and event data", async()=>{
+                    
+                    ctoken_withdrawal.logs[0].event.should.be.equal("ClosedOrder", "it emits the closed order event")
+                    ctoken_withdrawal.logs[0].args._withdrawee.should.be.equal(ctokenReceiver, "it emits the withdrawee/ctoken receiver's address")
+                    Number(ctoken_withdrawal.logs[0].args._amount).should.be.equal(10, "it emits the amount of tokens withdrawn")
+                    Number(ctoken_withdrawal.logs[0].args._tokenId).should.be.equal(0, "it emits the id of  the token withdrawn")
+
+                })
+
+                it("reveals secret on the initiator's order after final withdrawal", async()=>{
+                    const checkCHTLCOrderAfterWithdrawal = await chtlc.checkOrder(1)
+
+                    hexToUtf8(checkCHTLCOrderBeforeWithdrawal._secretKey).should.be.equal("", "secret not reflecting on the initiator's order before withdrawal by secret recipient")
+                    hexToUtf8(checkCHTLCOrderAfterWithdrawal._secretKey).should.be.equal(secretPhrase, "secret reflect on the initiator's order after withdrawal by order recipient")
+
+                })
+
+                
 
             })
 
