@@ -265,8 +265,8 @@ contract HTLC is ERC1155Receiver {
         
         require(_swapState[_orderId] == AtomicSwapState.OPEN, "order not opened");
         AtomicSwapOrder memory _order = _swapOrder[_orderId];
-        require(_order._secretHash == sha256(abi.encode(_secretKey)), "invalid secret");               //  check the secret validity
         require(_order._funded == true, "order not funded");
+        require(_order._secretHash == sha256(abi.encode(_secretKey)), "invalid secret");               //  check the secret validity
         uint256 _amount;
         uint256 _tokenId;
         

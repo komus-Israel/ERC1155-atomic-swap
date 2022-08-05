@@ -56,7 +56,9 @@ const REVERTS = {
     INVALID_DEPOSITOR: "invalid depositor",
     EXPIRED_ORDER: "expired order",
     FUNDED_ORDER: "funded order",
-    
+    INVALID_SECRET: "invalid secret",
+    NOT_FUNDED: "order not funded",
+    INVALID_WITHDRAWEE: "invalid withdrawee"
 
 }
 

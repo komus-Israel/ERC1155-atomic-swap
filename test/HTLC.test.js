@@ -490,6 +490,46 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
     })
 
     describe("order withdrawal", ()=>{
+
+        let secretPhrase = "access"
+            let secretKey
+            let secrethash
+
+            beforeEach(async()=>{
+                secretKey =  hashSecret(secretPhrase).secretHex
+                secretHash = hashSecret(secretPhrase).secretHash 
+
+                await erc1155_ctoken.setApprovalForAll(chtlc.address, true, {from: ttokenReceiver})
+
+
+                chtlc_open_order = await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ttokenReceiver})
+                thtlc_open_order = await thtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ttokenReceiver})
+            })
+
+        describe("failed withdrawal", ()=>{
+
+            it("fails to withdraw a non opened order", async()=>{
+                await chtlc.withdrawOrder(2, secretKey, {from: ctokenReceiver}).should.be.rejectedWith(REVERTS.NOT_OPENED)
+            })
+
+            it("fails to withdraw with an invalid secret", async()=>{
+                await chtlc.withdrawOrder(1, stringToHex("wrong").hex, {from: ctokenReceiver}).should.be.rejectedWith(REVERTS.INVALID_SECRET)
+            })
+
+            it("fails to withdraw to an invalid withdrawee", async()=>{
+                await chtlc.withdrawOrder(1, stringToHex("access").hex, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.INVALID_WITHDRAWEE)
+                await chtlc.withdrawOrder(1, stringToHex("access").hex, {from: deployer}).should.be.rejectedWith(REVERTS.INVALID_WITHDRAWEE)
+            })
+
+            it("fails to withdraw a non funded order", async()=>{
+                await thtlc.withdrawOrder(1, stringToHex("access").hex, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.NOT_FUNDED)
+            })
+
+        })
+
+        describe("successful withdrawal", ()=>{
+
+        })
         
     })
 })
