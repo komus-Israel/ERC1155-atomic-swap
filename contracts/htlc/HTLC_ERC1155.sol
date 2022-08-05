@@ -272,6 +272,7 @@ contract HTLC is ERC1155Receiver {
         if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("TTOKEN")))) {
             
             require(msg.sender == _order._ttokenReceiver, "invalid withdrawee");
+            require(now < _order._ttokenWithdrawalExpiration, "expired order");
             ERC1155_TOKEN.safeTransferFrom(address(this), _order._ttokenReceiver, _order._ttokenId, _order._ttokenAmount, "");
             _amount = _order._ttokenAmount;
             _tokenId = _order._ttokenId;
@@ -281,6 +282,7 @@ contract HTLC is ERC1155Receiver {
         if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("CTOKEN")))) {
             
             require(msg.sender == _order._ctokenReceiver, "invalid withdrawee");
+            require(now < _order._ctokenWithdrawalExpiration, "expired order");
             ERC1155_TOKEN.safeTransferFrom(address(this), _order._ctokenReceiver, _order._ctokenId, _order._ctokenAmount, "");
             _amount = _order._ctokenAmount;
             _tokenId = _order._ctokenId;
