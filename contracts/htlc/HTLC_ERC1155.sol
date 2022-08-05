@@ -35,8 +35,9 @@ contract HTLC is ERC1155Receiver {
 
      */ 
 
+
     address private _erc_1155_token_address;
-    //address private _erc_1155_ttoken_address;
+    
 
     /**  @dev    Enum to be used to track the state of an order
 
@@ -262,6 +263,34 @@ contract HTLC is ERC1155Receiver {
         
         require(_swapState[_orderId] == AtomicSwapState.OPEN, "order not opened");
         AtomicSwapOrder memory _order = _swapOrder[_orderId];
+        require(_order._secretHash == sha256(abi.encode(_secretKey)), "invalid secret");               //  check the secret validity
+        require(_order._funded == true, "order not funded");
+        uint256 _amount;
+        uint256 _tokenId;
+        
+        //  use the token name to detect the valid recipient
+        if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("TTOKEN")))) {
+            
+            require(msg.sender == _order._ttokenReceiver, "invalid withdrawee");
+            ERC1155_TOKEN.safeTransferFrom(address(this), _order._ttokenReceiver, _order._ttokenId, _order._ttokenAmount, "");
+            _amount = _order._ttokenAmount;
+            _tokenId = _order._ttokenId;
+        }
+
+
+        if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("CTOKEN")))) {
+            
+            require(msg.sender == _order._ctokenReceiver, "invalid withdrawee");
+            ERC1155_TOKEN.safeTransferFrom(address(this), _order._ctokenReceiver, _order._ctokenId, _order._ctokenAmount, "");
+            _amount = _order._ctokenAmount;
+            _tokenId = _order._ctokenId;
+        }
+
+        
+        _swapOrder[_orderId]._secretKey = _secretKey;
+        _swapState[_orderId] = AtomicSwapState.CLOSED;
+
+        emit ClosedOrder(msg.sender, _amount , _tokenId);
 
     }
 
@@ -312,4 +341,5 @@ contract HTLC is ERC1155Receiver {
 
     event OpenedOrder (address indexed _ctokenReceiver, address indexed _ttokenReceiver, uint256 _ctokenAmount, uint256 _ttokenAmount, uint256 _ctokenId, uint256 _ttokenId, uint256 _orderId);
     event DepositedOrder (address indexed _depositor, address indexed _receivingContract, uint256 _orderId, uint256 _tokenId, uint256 _tokenAmount);
+    event Closed (address indexed _withdrawee, uint256 _amount, uint256 _tokenId);
 }
