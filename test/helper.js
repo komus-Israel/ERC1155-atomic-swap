@@ -44,6 +44,12 @@ const stringToHex = (string)=>{
 
 }
 
+const hexToUtf8 = (hex) =>{
+    return web3.utils.hexToUtf8(hex)
+}
+
+
+
 const REVERTS = {
 
     INVALID_SECRET: "invalid secret",
@@ -63,5 +69,5 @@ const REVERTS = {
 }
 
 module.exports = {
-    hashSecret, stringToHex, swapState, REVERTS, BYTES_0
+    hashSecret, stringToHex, swapState, REVERTS, BYTES_0, hexToUtf8
 }

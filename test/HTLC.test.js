@@ -2,7 +2,7 @@ require("chai")
     .use(require("chai-as-promised"))
     .should()
 
-const { hashSecret, REVERTS, stringToHex, swapState, BYTES_0 } = require("./helper")
+const { hashSecret, REVERTS, stringToHex, swapState, BYTES_0, hexToUtf8 } = require("./helper")
 
 const HTLC = artifacts.require("./HTLC")
 const ERC1155_CTOKEN = artifacts.require("./CTOKEN")
@@ -491,7 +491,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
 
     describe("order withdrawal", ()=>{
 
-        let secretPhrase = "access"
+            let secretPhrase = "access"
             let secretKey
             let secrethash
 
@@ -502,8 +502,8 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                 await erc1155_ctoken.setApprovalForAll(chtlc.address, true, {from: ttokenReceiver})
 
 
-                chtlc_open_order = await chtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ttokenReceiver})
-                thtlc_open_order = await thtlc.openOrder(1, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ttokenReceiver})
+                chtlc_open_order = await chtlc.openOrder(1, 0, 0, 10, 20, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ttokenReceiver})
+                thtlc_open_order = await thtlc.openOrder(1, 0, 0, 10, 20, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ttokenReceiver})
             })
 
         describe("failed withdrawal", ()=>{
@@ -528,6 +528,60 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
         })
 
         describe("successful withdrawal", ()=>{
+
+            //  ctoken receiver deposits ttoken
+            beforeEach(async()=>{
+
+                await erc1155_ttoken.setApprovalForAll(thtlc.address, true, {from: ctokenReceiver})
+                await thtlc.depositOrder(1, {from: ctokenReceiver})
+
+            })
+
+            /**
+             * ctokenReceiver deposits ttokens 
+             * ttokenReceiver withdraws ttoken by providing secret
+             * cctoken Receiver takes secret and uses it to withdraw ctokens
+             */
+
+            describe("first withdrawal by ttoken receiver", ()=>{
+
+                let ttoken_withdrawal
+                let checkTHTLCOrderBeforeWithdrawal
+
+                beforeEach(async()=>{
+                    checkTHTLCOrderBeforeWithdrawal = await thtlc.checkOrder(1)
+                    ttoken_withdrawal = await thtlc.withdrawOrder(1, secretKey, {from: ttokenReceiver})
+                })
+
+            
+
+                it("emits the ClosedOrder event and event data", async()=>{
+                    
+                    ttoken_withdrawal.logs[0].event.should.be.equal("ClosedOrder", "it emits the closed order event")
+                    ttoken_withdrawal.logs[0].args._withdrawee.should.be.equal(ttokenReceiver, "it emits the withdrawee/ttoken receiver's address")
+                    Number(ttoken_withdrawal.logs[0].args._amount).should.be.equal(20, "it emits the amount of tokens withdrawn")
+                    Number(ttoken_withdrawal.logs[0].args._tokenId).should.be.equal(0, "it emits the id of  the token withdrawn")
+
+                })
+
+                /*it("emits the ClosedOrder event and event data", async()=>{
+                    
+                    ctoken_withdrawal.logs[0].event.should.be.equal("ClosedOrder", "it emits the closed order event")
+                    ctoken_withdrawal.logs[0].args._withdrawee.should.be.equal(ctokenReceiver, "it emits the withdrawee/ctoken receiver's address")
+                    Number(ctoken_withdrawal.logs[0].args._amount).should.be.equal(10, "it emits the amount of tokens withdrawn")
+                    Number(ctoken_withdrawal.logs[0].args._tokenId).should.be.equal(0, "it emits the id of  the token withdrawn")
+
+                })*/
+
+                it("reveals the secret after successful withdrawal", async()=>{
+                    const checkTHTLCOrderAfterWithdrawal = await thtlc.checkOrder(1)
+
+                    hexToUtf8(checkTHTLCOrderBeforeWithdrawal._secretKey).should.be.equal("", "secret not revealed before withdrawal by order initiator")
+                    hexToUtf8(checkTHTLCOrderAfterWithdrawal._secretKey).should.be.equal(secretPhrase, "secret revealed after withdrawal by order initiator")
+
+                })
+
+            })
 
         })
         
