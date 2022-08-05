@@ -255,7 +255,9 @@ contract HTLC is ERC1155Receiver {
                 secret must match
                 order must be funded
                 withdrawee must be the correct recipient
-                order has not expired
+                order must not be expired
+                withdraw successfully
+                make the secret key public
                 close the order
      */
 
