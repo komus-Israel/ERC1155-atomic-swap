@@ -259,7 +259,7 @@ contract HTLC is ERC1155Receiver {
                 close the order
      */
 
-    function withdrawOrder(uint256 _orderId, bytes32 _secret) external {
+    function withdrawOrder(uint256 _orderId, bytes32 _secretKey) external {
         
         require(_swapState[_orderId] == AtomicSwapState.OPEN, "order not opened");
         AtomicSwapOrder memory _order = _swapOrder[_orderId];
@@ -341,5 +341,5 @@ contract HTLC is ERC1155Receiver {
 
     event OpenedOrder (address indexed _ctokenReceiver, address indexed _ttokenReceiver, uint256 _ctokenAmount, uint256 _ttokenAmount, uint256 _ctokenId, uint256 _ttokenId, uint256 _orderId);
     event DepositedOrder (address indexed _depositor, address indexed _receivingContract, uint256 _orderId, uint256 _tokenId, uint256 _tokenAmount);
-    event Closed (address indexed _withdrawee, uint256 _amount, uint256 _tokenId);
+    event ClosedOrder(address indexed _withdrawee, uint256 _amount, uint256 _tokenId);
 }
