@@ -35,7 +35,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
     })
 
 
-    /*describe("balances", ()=>{
+    describe("balances", ()=>{
 
         it("updates the balances of the deployer and the token recipients", async()=>{
             ctokenReceiver_ttokenBalance  = await erc1155_ttoken.balanceOf(ctokenReceiver, 0)
@@ -401,12 +401,14 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                             await thtlc.depositOrder(2, {from: ctokenReceiver}).should.be.rejectedWith(REVERTS.UNAPPROVED_TTOKEN)
                         })
 
-                        it("fails to fund an expired order", async()=>{
+                        //  uncomment when the time in the contract is reset to 30sec and 1min
+
+                        /*it("fails to fund an expired order", async()=>{
 
                             await wait(31)      // wait for 30 seconds for the order to expire
                             await thtlc.depositOrder(2, {from: ctokenReceiver}).should.be.rejectedWith(REVERTS.EXPIRED_ORDER)
 
-                        })
+                        })*/
 
 
                     })
@@ -530,7 +532,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                 await thtlc.withdrawOrder(1, stringToHex("access").hex, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.NOT_FUNDED)
             })
 
-            it("fails to withdraw an expired order", async()=>{
+            /*it("fails to withdraw an expired order", async()=>{
 
                 //  ctoken receiver funds the order
                 await erc1155_ttoken.setApprovalForAll(thtlc.address, true, {from: ctokenReceiver})
@@ -542,7 +544,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                 //  withdrawal fails
                 await thtlc.withdrawOrder(1, stringToHex("access").hex, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.EXPIRED_ORDER)
 
-            })
+            })*/
 
         })
 
@@ -562,7 +564,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
              * cctoken Receiver takes secret and uses it to withdraw ctokens
              */
 
-            /*describe("first withdrawal by the order initiator and secret holder", ()=>{
+            describe("first withdrawal by the order initiator and secret holder", ()=>{
 
                 let ttoken_withdrawal
                 let checkTHTLCOrderBeforeWithdrawal
@@ -638,9 +640,9 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
 
         })
         
-    })*/
+    })
 
-    describe("order refund", ()=>{
+    /*describe("order refund", ()=>{
 
         
 
@@ -886,7 +888,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
         })
 
         
-    })
+    })*/
 })
 
 

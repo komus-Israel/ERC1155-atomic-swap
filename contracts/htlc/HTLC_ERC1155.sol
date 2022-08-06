@@ -92,18 +92,25 @@ contract HTLC is ERC1155Receiver {
     mapping(uint256 => AtomicSwapOrder) private _swapOrder;
     mapping(uint256 => AtomicSwapState) private _swapState;          //  default is invalid for all order id
 
-    /// @dev 
+    
 
-    IERCToken ERC1155_TOKEN;             //  declare ctoken interface
-    //IERCToken ERC1155_TTOKEN;             //  declare ttoken interface
+    IERCToken ERC1155_TOKEN;             //  declare the token interface
+    
+    /**
+        @dev    Token address initialization in the construction.
+        
+        ctoken address for HTLC to deposit and withdraw ctokens
+        ttoken address for HTLC to deposit and withdraw ttokens
+
+    */
 
     constructor(address erc_1155_token_address) public {
 
-        _erc_1155_token_address = erc_1155_token_address;     //  ctoken address initialization
-        //_erc_1155_ttoken_address = erc_1155_ttoken_address;     //  ttoken address initialization
+        _erc_1155_token_address = erc_1155_token_address;     //  token address initialization
+       
         
-        ERC1155_TOKEN = IERCToken(_erc_1155_token_address);   //  register ctoken with the interface
-        //ERC1155_TTOKEN = IERCToken(_erc_1155_ttoken_address);   //  register ttoken with the interface
+        ERC1155_TOKEN = IERCToken(_erc_1155_token_address);   //  register token with the interface
+        
     }
 
 
@@ -150,8 +157,8 @@ contract HTLC is ERC1155Receiver {
             
         if (_ctokenReceiver == msg.sender){
 
-            _ctokenReceiverExpiration = now + 30 seconds; //now + 30 minutes;     //  assign 30 to the initiator
-            _ttokenReceiverExpiration = now + 1 minutes; //now + 1 hours;        //  assign 1hr to the other party
+            _ctokenReceiverExpiration = now + 30 minutes; //now + 30 seconds;       //  assign 30 to the initiator
+            _ttokenReceiverExpiration = now + 1 hours;  //now + 1 minutes; //       //  assign 1hr to the other party
             
             /**
                 @dev    if initiator is receiving ctoken, then he is giving token, hence the need to deposit ttoken 
@@ -169,8 +176,8 @@ contract HTLC is ERC1155Receiver {
             
         if (_ttokenReceiver == msg.sender) {
 
-            _ctokenReceiverExpiration = now + 1 minutes; //now + 1 hours;        //  assign 1 hour to the other party
-            _ttokenReceiverExpiration = now + 30 seconds; //now + 30 minutes;     //  assign 30 minutes to the initiator
+            _ctokenReceiverExpiration = now + 1 hours;      //now + 1 minutes; //       //  assign 1 hour to the other party
+            _ttokenReceiverExpiration = now + 30 minutes;  //now + 30 seconds; //       //  assign 30 minutes to the initiator
 
             /**
                 @dev    if initiator is receiving ttoken, then he is giving ctoken, hence the need to deposit ttoken 
@@ -202,8 +209,9 @@ contract HTLC is ERC1155Receiver {
     /**
         @dev the non initiator of the order calls the fundOrder function to fund the order
 
-        //  order must be opened
-        //  order must not be expired
+        deposit is valid for only opened orders
+        the depositor must match the registered address for that token deposit during the order opening
+        the order must not be an expired order
     */
 
     function depositOrder(uint256 _orderId) external {
@@ -294,9 +302,13 @@ contract HTLC is ERC1155Receiver {
         _swapOrder[_orderId]._secretKey = _secretKey;
         _swapState[_orderId] = AtomicSwapState.CLOSED;
 
-        emit ClosedOrder(msg.sender, _amount , _tokenId);
+        emit ClosedOrder(msg.sender, _amount , _tokenId, _orderId);
 
     }
+
+    /**
+        @dev function to initate refund to the respective depositors provided order has expired
+     */
 
     function refundOrder(uint256 _orderId) external {
         require(_swapState[_orderId] == AtomicSwapState.OPEN, "order not opened");
@@ -326,7 +338,7 @@ contract HTLC is ERC1155Receiver {
         }
 
         _swapState[_orderId] = AtomicSwapState.EXPIRED;         //  update the order state
-        emit RefundOrder (msg.sender, _amount, _tokenId);
+        emit RefundOrder (msg.sender, _amount, _tokenId, _orderId);
     }
 
     /**
@@ -358,20 +370,16 @@ contract HTLC is ERC1155Receiver {
 
     
 
-    //  create function to open order
-    //  create function to open swap order by an individual
-    //  create function for the recipient to withdraw with the secret and close the order       //   the secret will be gotten from the other blockchain network
-    //  create function for an order opener to get refunded after expiration
-
+    
     
 
 
     /**
-        @dev    Events
+        @dev    Events to be emitted
     */
 
     event OpenedOrder (address indexed _ctokenReceiver, address indexed _ttokenReceiver, uint256 _ctokenAmount, uint256 _ttokenAmount, uint256 _ctokenId, uint256 _ttokenId, uint256 _orderId);
     event DepositedOrder (address indexed _depositor, address indexed _receivingContract, uint256 _orderId, uint256 _tokenId, uint256 _tokenAmount);
-    event ClosedOrder (address indexed _withdrawee, uint256 _amount, uint256 _tokenId);
-    event RefundOrder (address indexed _to, uint256 _amount, uint256 _tokenId);
+    event ClosedOrder (address indexed _withdrawee, uint256 _amount, uint256 _tokenId, uint256 _orderId);
+    event RefundOrder (address indexed _to, uint256 _amount, uint256 _tokenId, uint256 _orderId);
 }
