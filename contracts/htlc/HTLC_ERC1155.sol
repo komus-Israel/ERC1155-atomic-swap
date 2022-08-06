@@ -301,6 +301,7 @@ contract HTLC is ERC1155Receiver {
     function refundOrder(uint256 _orderId) external {
         require(_swapState[_orderId] == AtomicSwapState.OPEN, "order not opened");
         AtomicSwapOrder memory _order = _swapOrder[_orderId];
+        require(_order._funded == true, "order not funded");
         uint256 _amount;
         uint256 _tokenId;
         
