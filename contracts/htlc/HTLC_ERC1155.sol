@@ -134,7 +134,8 @@ contract HTLC is ERC1155Receiver {
         5.  the order expiration period for the non initiating party must be greater than the initiator with the secret
 
     
-     */
+    */
+
     function openOrder(uint256 _orderId, uint256 _ctokenId, uint256 _ttokenId, uint256 _ctokenAmount, uint256 _ttokenAmount, address _ctokenReceiver, address _ttokenReceiver, bytes32 _secretKey, bytes32 _secretHash) external {
         
         require(_swapState[_orderId] == AtomicSwapState.INVALID, "existing order id");          //  order id must be a non existing id
@@ -267,6 +268,13 @@ contract HTLC is ERC1155Receiver {
                 withdraw successfully
                 make the secret key public
                 close the order
+
+        @param _secretKey must be provided before any withdrawal can be initiated
+
+        the order initiator cannot withdraw the tokens of the secret recipient if he provides a wrong secret 
+        He must provide the valid secret that he used to initiate/open the order
+
+        the secret recipient will get the secret and use it to withdraw the token on the other chain
      */
 
     function withdrawOrder(uint256 _orderId, bytes32 _secretKey) external {
@@ -311,6 +319,7 @@ contract HTLC is ERC1155Receiver {
      */
 
     function refundOrder(uint256 _orderId) external {
+
         require(_swapState[_orderId] == AtomicSwapState.OPEN, "order not opened");
         AtomicSwapOrder memory _order = _swapOrder[_orderId];
         require(_order._funded == true, "order not funded");  
