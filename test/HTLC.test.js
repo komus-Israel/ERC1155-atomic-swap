@@ -572,6 +572,12 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
 
                 })
 
+
+                it("updates the order state to CLOSED",  async()=>{
+                    const checkTHTLCOrderAfterWithdrawal = await thtlc.checkOrder(1)
+                    checkTHTLCOrderAfterWithdrawal._atomicSwapState.toString().should.be.equal(swapState.CLOSED, "it updates the state of the order to CLOSED")
+                })
+
             })
 
             describe("withdrawal by the secret recipient", ()=>{
@@ -600,6 +606,11 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                     hexToUtf8(checkCHTLCOrderBeforeWithdrawal._secretKey).should.be.equal("", "secret not reflecting on the initiator's order before withdrawal by secret recipient")
                     hexToUtf8(checkCHTLCOrderAfterWithdrawal._secretKey).should.be.equal(secretPhrase, "secret reflect on the initiator's order after withdrawal by order recipient")
 
+                })
+
+                it("updates the order state to CLOSED",  async()=>{
+                    const checkCHTLCOrderAfterWithdrawal = await chtlc.checkOrder(1)
+                    checkCHTLCOrderAfterWithdrawal._atomicSwapState.toString().should.be.equal(swapState.CLOSED, "it updates the state of the order to CLOSED")
                 })
 
                 
