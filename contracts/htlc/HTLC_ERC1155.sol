@@ -150,8 +150,8 @@ contract HTLC is ERC1155Receiver {
             
         if (_ctokenReceiver == msg.sender){
 
-            _ctokenReceiverExpiration = now + 30 minutes;     //  assign 30 to the initiator
-            _ttokenReceiverExpiration = now + 1 hours;        //  assign 1hr to the other party
+            _ctokenReceiverExpiration = now + 30 seconds; //now + 30 minutes;     //  assign 30 to the initiator
+            _ttokenReceiverExpiration = now + 1 minutes; //now + 1 hours;        //  assign 1hr to the other party
             
             /**
                 @dev    if initiator is receiving ctoken, then he is giving token, hence the need to deposit ttoken 
@@ -169,8 +169,8 @@ contract HTLC is ERC1155Receiver {
             
         if (_ttokenReceiver == msg.sender) {
 
-            _ctokenReceiverExpiration = now + 1 hours;        //  assign 1 hour to the other party
-            _ttokenReceiverExpiration = now + 30 minutes;     //  assign 30 minutes to the initiator
+            _ctokenReceiverExpiration = now + 1 minutes; //now + 1 hours;        //  assign 1 hour to the other party
+            _ttokenReceiverExpiration = now + 30 seconds; //now + 30 minutes;     //  assign 30 minutes to the initiator
 
             /**
                 @dev    if initiator is receiving ttoken, then he is giving ctoken, hence the need to deposit ttoken 

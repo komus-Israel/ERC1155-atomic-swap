@@ -2,7 +2,7 @@ require("chai")
     .use(require("chai-as-promised"))
     .should()
 
-const { hashSecret, REVERTS, stringToHex, swapState, BYTES_0, hexToUtf8 } = require("./helper")
+const { hashSecret, REVERTS, stringToHex, swapState, BYTES_0, hexToUtf8, wait } = require("./helper")
 
 const HTLC = artifacts.require("./HTLC")
 const ERC1155_CTOKEN = artifacts.require("./CTOKEN")
@@ -286,9 +286,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                 await thtlc.openOrder(2, 0, 0, 10, 10, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ttokenReceiver})
             })
 
-            it("fails to open an order with an existing order id", async()=>{
-
-            })
+            
 
         })
 
@@ -401,6 +399,13 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
                         it("fails to accept deposit from if contract has not been approved", async()=>{
                             await erc1155_ttoken.setApprovalForAll(thtlc.address, false, {from: ctokenReceiver})
                             await thtlc.depositOrder(2, {from: ctokenReceiver}).should.be.rejectedWith(REVERTS.UNAPPROVED_TTOKEN)
+                        })
+
+                        it("fails to fund an expired order", async()=>{
+
+                            await wait(31)      // wait for 30 seconds for the order to expire
+                            await thtlc.depositOrder(2, {from: ctokenReceiver}).should.be.rejectedWith(REVERTS.EXPIRED_ORDER)
+
                         })
 
 
@@ -523,6 +528,20 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
 
             it("fails to withdraw a non funded order", async()=>{
                 await thtlc.withdrawOrder(1, stringToHex("access").hex, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.NOT_FUNDED)
+            })
+
+            it("fails to withdraw an expired order", async()=>{
+
+                //  ctoken receiver funds the order
+                await erc1155_ttoken.setApprovalForAll(thtlc.address, true, {from: ctokenReceiver})
+                await thtlc.depositOrder(1, {from: ctokenReceiver})
+
+                //  withdrawal expires
+                await wait(31)
+
+                //  withdrawal fails
+                await thtlc.withdrawOrder(1, stringToHex("access").hex, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.EXPIRED_ORDER)
+
             })
 
         })

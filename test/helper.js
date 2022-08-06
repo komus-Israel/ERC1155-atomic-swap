@@ -69,5 +69,5 @@ const REVERTS = {
 }
 
 module.exports = {
-    hashSecret, stringToHex, swapState, REVERTS, BYTES_0, hexToUtf8
+    hashSecret, stringToHex, swapState, REVERTS, BYTES_0, hexToUtf8, wait
 }
