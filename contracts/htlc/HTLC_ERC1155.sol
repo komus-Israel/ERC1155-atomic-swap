@@ -299,7 +299,7 @@ contract HTLC is ERC1155Receiver {
     }
 
     function refundOrder(uint256 _orderId) external {
-        require(_swapOrder[_orderId] = AtomicSwapState.OPEN, "order not opened");
+        require(_swapState[_orderId] == AtomicSwapState.OPEN, "order not opened");
         AtomicSwapOrder memory _order = _swapOrder[_orderId];
         uint256 _amount;
         uint256 _tokenId;
@@ -325,7 +325,7 @@ contract HTLC is ERC1155Receiver {
         }
 
         _swapState[_orderId] = AtomicSwapState.EXPIRED;         //  update the order state
-        emit RefundOrder (msg.sender, _order._amount, _order._id);
+        emit RefundOrder (msg.sender, _amount, _tokenId);
     }
 
     /**
@@ -337,7 +337,8 @@ contract HTLC is ERC1155Receiver {
 
             require(_swapState[_orderId] != AtomicSwapState.INVALID, "invalid Id");
             AtomicSwapOrder memory _order = _swapOrder[_orderId];
-            return (_order._ctokenReceiver, _order._ttokenReceiver, _order._ctokenWithdrawalExpiration, _order._ttokenWithdrawalExpiration, _order._ctokenAmount, _order._ttokenAmount, _order._ctokenId, _order._ttokenId, _swapState[_orderId], _order._funded, _order._secretKey); 
+            AtomicSwapState _state = _swapState[_orderId];
+            return (_order._ctokenReceiver, _order._ttokenReceiver, _order._ctokenWithdrawalExpiration, _order._ttokenWithdrawalExpiration, _order._ctokenAmount, _order._ttokenAmount, _order._ctokenId, _order._ttokenId, _state, _order._funded, _order._secretKey); 
 
     }
 
@@ -371,5 +372,5 @@ contract HTLC is ERC1155Receiver {
     event OpenedOrder (address indexed _ctokenReceiver, address indexed _ttokenReceiver, uint256 _ctokenAmount, uint256 _ttokenAmount, uint256 _ctokenId, uint256 _ttokenId, uint256 _orderId);
     event DepositedOrder (address indexed _depositor, address indexed _receivingContract, uint256 _orderId, uint256 _tokenId, uint256 _tokenAmount);
     event ClosedOrder (address indexed _withdrawee, uint256 _amount, uint256 _tokenId);
-    event RefundOrder (address indexed _to, uint256 _amount, uint256 _tokenId));
+    event RefundOrder (address indexed _to, uint256 _amount, uint256 _tokenId);
 }
