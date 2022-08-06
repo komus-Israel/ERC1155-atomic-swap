@@ -190,7 +190,7 @@ contract HTLC is ERC1155Receiver {
         _swapState[_orderId] = AtomicSwapState.OPEN;     //  update the order state to open
         _swapOrder[_orderId] = AtomicSwapOrder(_ctokenReceiver, _ttokenReceiver, msg.sender, _secretHash, 
                                                 bytes32(0), _ctokenAmount, _ttokenAmount, _ctokenId,  _ttokenId, _ctokenReceiverExpiration, 
-                                                _ttokenReceiverExpiration, _orderId, _fundedStatus, _swapState[_orderId]);
+                                                _ttokenReceiverExpiration, _orderId, _fundedStatus);
 
 
         //  emit the opened order
