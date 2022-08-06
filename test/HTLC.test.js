@@ -659,7 +659,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
             let thtlc_open_order
 
             beforeEach(async ()=>{
-                //  ctoken receiver approves THTLC to move and deposit his ttokens 
+                //  ttoken receiver approves THTLC to move and deposit his ttokens 
                 await erc1155_ctoken.setApprovalForAll(chtlc.address, true, {from: ttokenReceiver})
                     
                 //  he opens the order
@@ -668,7 +668,7 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
             
             })
 
-            describe("ctoken reciver refund", ()=>{
+            describe("ctoken receiver refund", ()=>{
 
                 describe("success", ()=>{
 
@@ -770,6 +770,118 @@ contract("HTLC contract unit test for ERC1155", ([deployer, ctokenReceiver, ttok
         })
 
         describe("order initiated by ctoken receiver", ()=>{
+
+
+            let chtlc_open_order
+            let thtlc_open_order
+
+            beforeEach(async ()=>{
+                //  ttoken receiver approves THTLC to move and deposit his ttokens 
+                await erc1155_ttoken.setApprovalForAll(thtlc.address, true, {from: ctokenReceiver})
+                    
+                //  he opens the order
+                chtlc_open_order = await chtlc.openOrder(1, 0, 0, 10, 20, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ctokenReceiver})
+                thtlc_open_order = await thtlc.openOrder(1, 0, 0, 10, 20, ctokenReceiver, ttokenReceiver, secretKey, secretHash, {from: ctokenReceiver})
+            
+            })
+
+            describe("ctoken receiver refund", ()=>{
+
+                describe("success", ()=>{
+
+    
+                    it("refunds the order initiator", async()=>{
+                        await wait(61)
+                        const refund = await thtlc.refundOrder(1, {from: ctokenReceiver})
+                        refund.logs[0].event.should.be.equal("RefundOrder", "it emits the RefundOrder event")
+                        refund.logs[0].args._to.should.be.equal(ctokenReceiver, "it emits the refunded address")
+                        Number(refund.logs[0].args._amount).should.be.equal(20, "it emits the refunded amount")
+                        Number(refund.logs[0].args._tokenId).should.be.equal(0, "it emits the refunded token id")
+    
+                        const checkOrder = await thtlc.checkOrder(1)
+                        checkOrder._atomicSwapState.toString().should.be.equal(swapState.EXPIRED, "order state updated to expired")
+                    
+                    })
+
+
+                })
+
+                describe("failure", ()=>{
+
+                    it("fails to refund an non opened order", async()=>{
+                        await thtlc.refundOrder(2, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.NOT_OPENED)
+                    })
+    
+                    it("fails to refund a non expired order and an invalid caller", async()=>{
+                        
+                    
+                        await thtlc.refundOrder(1, {from: ctokenReceiver}).should.be.rejectedWith(REVERTS.NOT_EXPIRED)
+                        
+                        await wait(61)       //expire the order
+                        await thtlc.refundOrder(1, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.INVALID_WITHDRAWEE)
+    
+                        
+                    })
+    
+                })
+
+            })
+
+            describe("ttoken receiver refund", ()=>{
+
+                describe("success", ()=>{
+
+                    beforeEach(async()=>{
+
+                        await erc1155_ctoken.setApprovalForAll(chtlc.address, true, {from: ttokenReceiver})
+                        await chtlc.depositOrder(1, {from: ttokenReceiver})
+                    })
+    
+                    it("refunds the secret recipient", async()=>{
+                        await wait(31)
+                        const refund = await chtlc.refundOrder(1, {from: ttokenReceiver})
+                        refund.logs[0].event.should.be.equal("RefundOrder", "it emits the RefundOrder event")
+                        refund.logs[0].args._to.should.be.equal(ttokenReceiver, "it emits the refunded address")
+                        Number(refund.logs[0].args._amount).should.be.equal(10, "it emits the refunded amount")
+                        Number(refund.logs[0].args._tokenId).should.be.equal(0, "it emits the refunded token id")
+    
+                        const checkOrder = await chtlc.checkOrder(1)
+                        checkOrder._atomicSwapState.toString().should.be.equal(swapState.EXPIRED, "order state updated to expired")
+                    
+                    })
+
+
+                })
+
+                describe("failure", ()=>{
+
+                    it("fails to refund an non opened order", async()=>{
+                        await chtlc.refundOrder(2, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.NOT_OPENED)
+                    })
+    
+                    it("fails to refund a non funded order", async()=>{
+                        
+                        await chtlc.refundOrder(1, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.NOT_FUNDED)
+    
+                    })
+    
+                    it("fails to refund a non expired order and an invalid caller", async()=>{
+                        
+                        await erc1155_ctoken.setApprovalForAll(chtlc.address, true, {from: ttokenReceiver})
+                        await chtlc.depositOrder(1, {from: ttokenReceiver})
+                    
+                        await chtlc.refundOrder(1, {from: ttokenReceiver}).should.be.rejectedWith(REVERTS.NOT_EXPIRED)
+                        
+                        await wait(31)       //expire the order
+                        await chtlc.refundOrder(1, {from: ctokenReceiver}).should.be.rejectedWith(REVERTS.INVALID_WITHDRAWEE)
+    
+                        
+                    })
+    
+                })
+
+            })
+
 
         })
 
