@@ -301,7 +301,7 @@ contract HTLC is ERC1155Receiver {
     function refundOrder(uint256 _orderId) external {
         require(_swapState[_orderId] == AtomicSwapState.OPEN, "order not opened");
         AtomicSwapOrder memory _order = _swapOrder[_orderId];
-        require(_order._funded == true, "order not funded");
+        require(_order._funded == true, "order not funded");  
         uint256 _amount;
         uint256 _tokenId;
         
@@ -309,7 +309,7 @@ contract HTLC is ERC1155Receiver {
         if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("TTOKEN")))) {
             
             require(now > _order._ttokenWithdrawalExpiration, "order not expired");
-            require(msg.sender == _order._ctokenReceiver, "invalid caller");        //  it was deposited by ctoken receiver
+            require(msg.sender == _order._ctokenReceiver, "invalid withdrawee");        //  it was deposited by ctoken receiver
             ERC1155_TOKEN.safeTransferFrom(address(this), _order._ctokenReceiver, _order._ttokenId, _order._ttokenAmount, "");
             _amount = _order._ttokenAmount;
             _tokenId = _order._ttokenId;
@@ -319,7 +319,7 @@ contract HTLC is ERC1155Receiver {
         if (keccak256(abi.encodePacked((ERC1155_TOKEN.name()))) == keccak256(abi.encodePacked(("CTOKEN")))) {
             
             require(now > _order._ctokenWithdrawalExpiration, "order not expired");
-            require(msg.sender == _order._ttokenReceiver, "invalid caller");        //  it was deposited by ttoken receiver
+            require(msg.sender == _order._ttokenReceiver, "invalid withdrawee");        //  it was deposited by ttoken receiver
             ERC1155_TOKEN.safeTransferFrom(address(this), _order._ttokenReceiver, _order._ctokenId, _order._ctokenAmount, "");
             _amount = _order._ctokenAmount;
             _tokenId = _order._ctokenId;
