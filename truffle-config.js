@@ -1,27 +1,9 @@
-/**
- * Use this file to configure your truffle project. It's seeded with some
- * common settings for different networks and features like migrations,
- * compilation, and testing. Uncomment the ones you need or modify
- * them to suit your project as necessary.
- *
- * More information about configuration can be found at:
- * 
- * https://trufflesuite.com/docs/truffle/reference/configuration
- *
- * To deploy via Infura you'll need a wallet provider (like @truffle/hdwallet-provider)
- * to sign your transactions before they're sent to a remote public node. Infura accounts
- * are available for free at: infura.io/register.
- *
- * You'll also need a mnemonic - the twelve word phrase the wallet uses to generate
- * public/private key pairs. If you're publishing your code to GitHub make sure you load this
- * phrase from a file you've .gitignored so it doesn't accidentally become public.
- *
- */
-
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
-//
-// const fs = require('fs');
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+const fs = require('fs');
+const Web3 = require("web3")
+const mnemonic = fs.readFileSync(".secret").toString().trim();
+Web3.providers.HttpProvider.prototype.sendAsync = Web3.providers.HttpProvider.prototype.send
+const avaxProvider = new Web3.providers.HttpProvider( "http://localhost:9650/ext/bc/C/rpc")
 
 module.exports = {
   /**
@@ -47,15 +29,17 @@ module.exports = {
         network_id: "*",       // Any network (default: none)
      },
     //
-    // An additional network, but with some advanced options…
-    // advanced: {
-    //   port: 8777,             // Custom port
-    //   network_id: 1342,       // Custom network
-    //   gas: 8500000,           // Gas sent with each transaction (default: ~6700000)
-    //   gasPrice: 20000000000,  // 20 gwei (in wei) (default: 100 gwei)
-    //   from: <address>,        // Account to send transactions from (default: accounts[0])
-    //   websocket: true         // Enable EventEmitter interface for web3 (default: false)
-    // },
+
+    // An additional network, avalaunce local node
+     avax: {
+        provider: () => {
+          return new HDWalletProvider(mnemonic, avaxProvider)
+        },
+        network_id: "*",
+        //gas: 3000000,
+        //gasPrice: 225000000000,
+      },
+     },
     //
     // Useful for deploying to a public network.
     // Note: It's important to wrap the provider as a function to ensure truffle uses a new provider every time.
@@ -74,7 +58,7 @@ module.exports = {
     //   network_id: 2111,   // This network is yours, in the cloud.
     //   production: true    // Treats this network as if it was a public net. (default: false)
     // }
-  },
+
 
   // Set default mocha options here, use special reporters, etc.
   mocha: {
