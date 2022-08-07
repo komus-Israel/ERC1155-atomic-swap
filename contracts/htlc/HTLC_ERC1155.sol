@@ -254,8 +254,6 @@ contract HTLC is ERC1155Receiver {
         }
 
         
-
-
     }
 
     /**
