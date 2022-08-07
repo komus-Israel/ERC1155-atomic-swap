@@ -31,11 +31,14 @@ module.exports = {
     //
 
     // An additional network, avalaunce local node
+    //  run --network-id=local --staking-enabled=false with avalaunch command
      avax: {
         provider: () => {
           return new HDWalletProvider(mnemonic, avaxProvider)
         },
         network_id: "*",
+        //networkCheckTimeout: 1000000000,
+        //timeoutBlocks: 200,
         //gas: 3000000,
         //gasPrice: 225000000000,
       },
