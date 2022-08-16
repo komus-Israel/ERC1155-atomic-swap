@@ -33037,6 +33037,12 @@
     "version": "0.6.2+commit.bacdbe57.Emscripten.clang"
   },
   "networks": {
+    "42": {
+      "events": {},
+      "links": {},
+      "address": "0x008cE9b0873a7798e11eb2230483dbac6Aa8bFB0",
+      "transactionHash": "0x7621bcff16754b3ae263e55d9f1b38eb8d46c1b7e68bf1c761ce5701ab820308"
+    },
     "5777": {
       "events": {},
       "links": {},
@@ -33048,10 +33054,16 @@
       "links": {},
       "address": "0xdE962ccC1b81cE24c954F94daE5EbC845027cFC6",
       "transactionHash": "0x3824a6b9a479273e856f96d29e416f816e03a83502c9ab212774a12d0acf1266"
+    },
+    "43113": {
+      "events": {},
+      "links": {},
+      "address": "0x843ee4A0e6331859d1f502EFCEdf4aaC7c7EDd50",
+      "transactionHash": "0xd4428ec8a90772ac01443bb8632670c2ddadf8c71237c9c9c9dc69951319d968"
     }
   },
   "schemaVersion": "3.4.8",
-  "updatedAt": "2022-08-07T15:37:26.494Z",
+  "updatedAt": "2022-08-16T19:27:21.012Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "The flow for the atomic swap goes thus; 1.  An initiator opens order on the two HTLC contracts on the two chains with the same order id 2.  The initiator automatically deposit tokens to the htlc for his own chain 3.  The other party gets notified of the order on the other chain and funds the order 4.  The initiator provides secret to the other party and then withdraws the token provided the secret is correct 5.  The other party takes the secret and uses it to withdraw the tokens that the initiator deposited during the order opening 6.  Since the initiator withdraws first, and the other party withdraws last, the other party will need more time to withdraw",

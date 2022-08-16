@@ -1,9 +1,15 @@
+require("dotenv").config()
+
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 const fs = require('fs');
 const Web3 = require("web3")
 const mnemonic = fs.readFileSync(".secret").toString().trim();
 Web3.providers.HttpProvider.prototype.sendAsync = Web3.providers.HttpProvider.prototype.send
 const avaxProvider = new Web3.providers.HttpProvider( "http://localhost:9650/ext/bc/C/rpc")
+const fujiProvider = new Web3.providers.HttpProvider("https://api.avax-test.network/ext/bc/C/rpc")
+const kovanProvider = new Web3.providers.HttpProvider(process.env["KOVAN_NETWORK"]) 
+
+
 
 module.exports = {
   /**
@@ -42,6 +48,25 @@ module.exports = {
         //gas: 3000000,
         //gasPrice: 225000000000,
       },
+
+      fuji: {
+        provider: () => {
+          return new HDWalletProvider(mnemonic, fujiProvider)
+        },
+        network_id: "43113",
+      },
+
+      kovan: {
+        provider: () => {
+          return new HDWalletProvider(mnemonic, kovanProvider)
+        },
+        network_id: "42",
+        networkCheckTimeout: 1000000000,
+        timeoutBlocks: 200,
+      },
+    
+
+
      },
     //
     // Useful for deploying to a public network.

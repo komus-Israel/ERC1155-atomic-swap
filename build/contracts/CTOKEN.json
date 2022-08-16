@@ -9763,10 +9763,16 @@
       "links": {},
       "address": "0xf363F79f13051a25dDEA0E8a1F419402b2F26D47",
       "transactionHash": "0x455668caef149f89e8253d2b39c4bbea586b466a273e42b8c73a26ca770ac310"
+    },
+    "43113": {
+      "events": {},
+      "links": {},
+      "address": "0x12c51917D6509eBdb0810ad4522A5705cede3375",
+      "transactionHash": "0x5176790ee7ad8d675ff96df5d3920d2ef3ea00d31d50d963ff09daf123178d91"
     }
   },
   "schemaVersion": "3.4.8",
-  "updatedAt": "2022-08-07T15:37:26.481Z",
+  "updatedAt": "2022-08-16T19:04:43.379Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {
